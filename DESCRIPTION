@@ -1,0 +1,12 @@
+Package: ec50estimator
+Type: Package
+Title: This package contains a function for estimate EC50
+Version: 0.1.0
+Author: Kaique Alves
+Maintainer: Kaique Alves <kaiquedsalves@gmail.com>
+Description: This package contains a function for estimate Effective control to 50% of growth inibiton (EC50) for multi isolated stritified data set.
+License: none
+Encoding: UTF-8
+LazyData: true
+Imports: dplyr, tidyr, tibble, magrittr
+RoxygenNote: 7.0.2
