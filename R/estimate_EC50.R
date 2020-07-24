@@ -1,4 +1,4 @@
-estimate_EC50 = function(formula, data, isolate_col, strata_col = NULL, fct,
+estimate_EC50 = function(formula, data, EC_lvl = 50, isolate_col, strata_col = NULL, fct,
                          interval = c("none", "delta", "fls", "tfls")){
 
   { if(missing(formula)){stop(gettextf("Please, specify the 'formula'"))}}
@@ -38,7 +38,7 @@ estimate_EC50 = function(formula, data, isolate_col, strata_col = NULL, fct,
       try({
         model = drc::drm(formula,  fct =fct , data = datak)
 
-        ed = drc::ED(model, 50, interval = interval, display = F)
+        ed = drc::ED(model, EC_lvl, interval = interval, display = F)
 
         lil_box = data.frame(ID = as.character(id[k]), strata = as.character(strata[i]) ,ed) %>%
           tibble::remove_rownames() %>%
