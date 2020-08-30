@@ -1,7 +1,5 @@
 
-![](man/figures/logo.png){height="231.8px" width="200px"}
-
-# *ec50estimator*: An easy way to estimate EC<sub>50</sub> for multi isolate data set
+# *ec50estimator*: An easy way to estimate EC<sub>50</sub> for multi isolate data set <img width = 200px align = right src="man/figures/logo.png" >
 
 # Introduction
 
