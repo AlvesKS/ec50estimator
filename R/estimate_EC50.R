@@ -52,6 +52,16 @@ estimate_EC50 = function(formula, data, EC_lvl = 50, isolate_col, strata_col = N
 
 
     }}
+
+ computed_isolates =  unique(box$ID)
+
+  true_false = !isolate_col %in% computed_isolates
+  did_not = isolate_col[true_false]
+
+  if(length(did_not)>0){
+    print(paste0("Isolates = c(", toString(paste0("'",did_not,"'")), ") did not produced ec50 estimates due to error during fitting procedure", collapse=", "))
+  }
+
   box
 }
 
