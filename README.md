@@ -1,4 +1,4 @@
-# *ec50estimator*: An easy way to estimate $EC_{50}$ for multi isolate data set
+# *ec50estimator*: An easy way to estimate EC<sub>2</sub>. for multi isolate data set
 
 # Introduction
 
