@@ -4,9 +4,11 @@ Title: This package contains a function for estimate EC50
 Version: 0.1.0
 Author: Kaique Alves
 Maintainer: Kaique Alves <kaiquedsalves@gmail.com>
-Description: This package contains a function for estimating Effective control to 50% of growth inibiton (EC50) for multi isolated stritified data set.
+Description: This package contains a function for estimating Effective control to 50% of growth inibiton (EC50) for multi isolated stritified dataset.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports: dplyr, tidyr, tibble, magrittr, drc
 RoxygenNote: 7.0.2
+VignetteBuilder: knitr
+Suggests: knitr, rmarkdown, ggplot2, ggridges, cowplot

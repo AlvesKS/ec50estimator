@@ -1,3 +1,7 @@
+#' Calculate EC50 for one or mode isolates.
+#' @importFrom magrittr %>%
+#' @export estimate_EC50
+
 estimate_EC50 = function(formula, data, EC_lvl = 50, isolate_col, strata_col = NULL, fct,
                          interval = c("none", "delta", "fls", "tfls")){
 
@@ -36,7 +40,7 @@ estimate_EC50 = function(formula, data, EC_lvl = 50, isolate_col, strata_col = N
 
 
       try({
-        model = drc::drm(formula,  fct =fct , data = datak)
+        model = drc::drm(formula,  fct = fct , data = datak)
 
         ed = drc::ED(model, EC_lvl, interval = interval, display = F)
 
@@ -53,15 +57,16 @@ estimate_EC50 = function(formula, data, EC_lvl = 50, isolate_col, strata_col = N
 
     }}
 
- computed_isolates =  unique(box$ID)
+  computed_isolates =  unique(box$ID)
+  all_isolates = as.character(unique(data[[isolate_col]]))
 
-  true_false = !isolate_col %in% computed_isolates
-  did_not = isolate_col[true_false]
+  true_false = !all_isolates %in% computed_isolates
+  did_not = all_isolates[true_false]
 
   if(length(did_not)>0){
     print(paste0("Isolates = c(", toString(paste0("'",did_not,"'")), ") did not produced ec50 estimates due to error during fitting procedure", collapse=", "))
   }
 
-  box
+  return(box)
 }
 
