@@ -65,7 +65,7 @@ head(df_ec50)
 
 ```
 
-ATTENTION: In this tutorial I used the same model (`drc::LL.4()`) for the two fungicides (A and B). However, it is important to check which model is most appropriate for your data. To do this, before running the function `estimate_EC50()` for all your data, use the function `drm()` to adjust a model for some isolates and later use the function `drc::mselect()` to calculate the statistics that will help you select the best model. Tip: the lower the AIC value, the better the model. For more information, run the command `?mselecton` in your Console.
+ATTENTION: In this tutorial I used the same model (`drc::LL.3()`) for the two fungicides (A and B). However, it is important to check which model is most appropriate for your data. To do this, before running the function `estimate_EC50()` for all your data, use the function `drm()` to adjust a model for some isolates and later use the function `drc::mselect()` to calculate the statistics that will help you select the best model. Tip: the lower the AIC value, the better the model. For more information, run the command `?mselecton` in your Console.
 
 
 # Visualization

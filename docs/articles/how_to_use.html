@@ -66,7 +66,14 @@
   </ul>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/AlvesKS/ec50estimator/">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -76,15 +83,15 @@
 
       
 
-      </header><div class="row">
+      </header><script src="how_to_use_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>ec50estimator</h1>
                         <h4 class="author">Kaique S Alves</h4>
             
-            <h4 class="date">2020-08-31</h4>
+            <h4 class="date">2020-09-07</h4>
       
-      
+      <small class="dont-index">Source: <a href="https://github.com/AlvesKS/ec50estimator/blob/master/vignettes/how_to_use.Rmd"><code>vignettes/how_to_use.Rmd</code></a></small>
       <div class="hidden name"><code>how_to_use.Rmd</code></div>
 
     </div>
@@ -140,7 +147,7 @@
 ## 4  7 Organic Fungicide A 0.006532201 0.0005278730 0.005456959 0.007607443
 ## 5  9 Organic Fungicide A 0.005115267 0.0004672111 0.004163589 0.006066945
 ## 6 11 Organic Fungicide A 0.005044116 0.0005000569 0.004025533 0.006062698</code></pre>
-<p>ATTENTION: In this tutorial I used the same model (<code><a href="https://rdrr.io/pkg/drc/man/LL.4.html">drc::LL.4()</a></code>) for the two fungicides (A and B). However, it is important to check which model is most appropriate for your data. To do this, before running the function <code><a href="../reference/estimate_EC50.html">estimate_EC50()</a></code> for all your data, use the function <code><a href="https://rdrr.io/pkg/drc/man/drm.html">drm()</a></code> to adjust a model for some isolates and later use the function <code><a href="https://rdrr.io/pkg/drc/man/mselect.html">drc::mselect()</a></code> to calculate the statistics that will help you select the best model. Tip: the lower the AIC value, the better the model. For more information, run the command <code>?mselecton</code> in your Console.</p>
+<p>ATTENTION: In this tutorial I used the same model (<code><a href="https://rdrr.io/pkg/drc/man/LL.3.html">drc::LL.3()</a></code>) for the two fungicides (A and B). However, it is important to check which model is most appropriate for your data. To do this, before running the function <code><a href="../reference/estimate_EC50.html">estimate_EC50()</a></code> for all your data, use the function <code><a href="https://rdrr.io/pkg/drc/man/drm.html">drm()</a></code> to adjust a model for some isolates and later use the function <code><a href="https://rdrr.io/pkg/drc/man/mselect.html">drc::mselect()</a></code> to calculate the statistics that will help you select the best model. Tip: the lower the AIC value, the better the model. For more information, run the command <code>?mselecton</code> in your Console.</p>
 </div>
 </div>
 <div id="visualization" class="section level1">
@@ -188,7 +195,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Kaique Alves.</p>
+  <p>Developed by Kaique dos S. Alves.</p>
 </div>
 
 <div class="pkgdown">
