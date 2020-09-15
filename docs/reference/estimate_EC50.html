@@ -137,9 +137,9 @@
     <p>Estimate Efective dose (EC50) for multi isolate stratified data set.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>estimate_EC50</span>(<span class='no'>formula</span>, <span class='no'>data</span>, <span class='kw'>EC_lvl</span> <span class='kw'>=</span> <span class='fl'>50</span>, <span class='no'>isolate_col</span>,
-<span class='kw'>strata_col</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-<span class='no'>fct</span>,<span class='kw'>interval</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"none"</span>, <span class='st'>"delta"</span>, <span class='st'>"fls"</span>, <span class='st'>"tfls"</span>))</pre>
+    <pre class="usage"><span class='fu'>estimate_EC50</span>(<span class='kw'>formula</span>, <span class='kw'>data</span>, EC_lvl = <span class='fl'>50</span>, <span class='kw'>isolate_col</span>,
+strata_col = <span class='kw'>NULL</span>,
+<span class='kw'>fct</span>,interval = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"none"</span>, <span class='st'>"delta"</span>, <span class='st'>"fls"</span>, <span class='st'>"tfls"</span>))</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -177,15 +177,16 @@
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Load data</span>
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>multi_isolate</span>)
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='kw'>multi_isolate</span>)
 
-<span class='no'>df_ec50</span> <span class='kw'>=</span> <span class='fu'>estimate_EC50</span>(<span class='no'>growth</span>~<span class='no'>dose</span>,
-                        <span class='kw'>data</span> <span class='kw'>=</span><span class='no'>multi_isolate</span>,
-                        <span class='kw'>isolate_col</span> <span class='kw'>=</span> <span class='st'>"isolate"</span>,
-                        <span class='kw'>strata_col</span> <span class='kw'>=</span>  <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"field"</span>,<span class='st'>"fungicida"</span>),
-                        <span class='kw'>interval</span> <span class='kw'>=</span> <span class='st'>"delta"</span>,
-                        <span class='kw'>fct</span> <span class='kw'>=</span> <span class='kw pkg'>drc</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/drc/man/LL.3.html'>LL.3</a></span>())
-<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='no'>df_ec50</span>)</div><div class='output co'>#&gt;   ID   field   fungicida    Estimate   Std..Error       Lower       Upper
+<span class='kw'>df_ec50</span> <span class='op'>=</span> <span class='fu'>estimate_EC50</span>(<span class='kw'>growth</span><span class='op'>~</span><span class='kw'>dose</span>,
+                        data =<span class='kw'>multi_isolate</span>,
+                        isolate_col = <span class='st'>"isolate"</span>,
+                        strata_col =  <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"field"</span>,<span class='st'>"fungicida"</span>),
+                        interval = <span class='st'>"delta"</span>,
+                        fct = <span class='kw'>drc</span>::<span class='fu'><a href='https://rdrr.io/pkg/drc/man/LL.3.html'>LL.3</a></span>())
+<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='kw'>df_ec50</span>)
+</div><div class='output co'>#&gt;   ID   field   fungicida    Estimate   Std..Error       Lower       Upper
 #&gt; 1  1 Organic Fungicide A 0.006072082 0.0005740341 0.004902813 0.007241351
 #&gt; 2  3 Organic Fungicide A 0.003776957 0.0002432571 0.003281459 0.004272456
 #&gt; 3  5 Organic Fungicide A 0.006122508 0.0004575060 0.005190599 0.007054418
@@ -208,7 +209,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

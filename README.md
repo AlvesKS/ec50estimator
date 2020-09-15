@@ -5,7 +5,13 @@
 
 *ec50estimator* provides a quick, easy and automated way of estimating the effective control to 50% of growth inhibition (EC<sub>50</sub>) from multi isolate datasets. It also is optimized to deal with stratified data.
 
-## Download 
+## Download and install
+
+Install the stable release from CRAN.
+
+``` r
+install.packages("ec50estimator")
+```
 A development version can be download using the following code: 
 
 ``` r
