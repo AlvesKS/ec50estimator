@@ -1,3 +1,5 @@
+[![CRAN](https://www.r-pkg.org/badges/version/ec50estimator)](https://CRAN.R-project.org/package=ec50estimator)
+[![Downloads](https://cranlogs.r-pkg.org/badges/ec50estimator)](https://CRAN.R-project.org/package=ec50estimator)
 
 # *ec50estimator*: An easy way to estimate EC<sub>50</sub> for multi isolate datasets <img width = 200px align = right src="man/figures/logo.png" >
 
