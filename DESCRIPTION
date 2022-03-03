@@ -1,8 +1,8 @@
 Package: ec50estimator
 Type: Package
 Title: An Automated Way to Estimate EC50 for Stratified Datasets
-Version: 0.1.0
-Date: 2020-09-07
+Version: 0.2.0
+Date: 2022-03-03
 Authors@R: c(
     person(given = "Kaique dos S.",
            family = "Alves", 
@@ -19,7 +19,7 @@ Description: An implementation for estimating Effective control to 50% of growth
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-Imports: dplyr, tidyr, tibble, magrittr, drc
+Imports: dplyr, tidyr, tibble, tidyselect, magrittr, drc
 RoxygenNote: 7.0.2
 VignetteBuilder: knitr
 Suggests: knitr, rmarkdown, ggplot2, ggridges, cowplot

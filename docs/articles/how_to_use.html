@@ -26,6 +26,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -38,18 +40,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ec50estimator</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
@@ -68,8 +64,8 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/AlvesKS/ec50estimator/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+  <a href="https://github.com/AlvesKS/ec50estimator/" class="external-link">
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -83,115 +79,110 @@
 
       
 
-      </header><script src="how_to_use_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>ec50estimator</h1>
-                        <h4 class="author">Kaique S Alves</h4>
+                        <h4 data-toc-skip class="author">Kaique S Alves</h4>
             
-            <h4 class="date">2020-09-15</h4>
+            <h4 data-toc-skip class="date">2022-03-03</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/AlvesKS/ec50estimator/blob/master/vignettes/how_to_use.Rmd"><code>vignettes/how_to_use.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/AlvesKS/ec50estimator/blob/HEAD/vignettes/how_to_use.Rmd" class="external-link"><code>vignettes/how_to_use.Rmd</code></a></small>
       <div class="hidden name"><code>how_to_use.Rmd</code></div>
 
     </div>
 
     
     
-<div id="introduction" class="section level1">
-<h1 class="hasAnchor">
-<a href="#introduction" class="anchor"></a>Introduction</h1>
+<div class="section level2">
+<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+</h2>
 <p><em>ec50estimator</em> provides a quick, easy and automated way of estimating the effective control to 50% of growth inhibition (EC50) from multi isolate data sets. It also is optimized to deal with stratified data.</p>
 </div>
-<div id="hands-on" class="section level1">
-<h1 class="hasAnchor">
-<a href="#hands-on" class="anchor"></a>Hands on</h1>
-<div id="packages" class="section level2">
-<h2 class="hasAnchor">
-<a href="#packages" class="anchor"></a>Packages</h2>
-<div class="sourceCode" id="cb1"><pre class="downlit">
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw"><a href="https://github.com/AlvesKS/ec50estimator">ec50estimator</a></span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw"><a href="http://www.r-project.org">drc</a></span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw"><a href="http://ggplot2.tidyverse.org">ggplot2</a></span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw"><a href="https://dplyr.tidyverse.org">dplyr</a></span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw">magrittr</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw"><a href="https://wilkelab.org/cowplot">cowplot</a></span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw"><a href="https://wilkelab.org/ggridges">ggridges</a></span>)
-</pre></div>
+<div class="section level2">
+<h2 id="hands-on">Hands on<a class="anchor" aria-label="anchor" href="#hands-on"></a>
+</h2>
+<div class="section level3">
+<h3 id="packages">Packages<a class="anchor" aria-label="anchor" href="#packages"></a>
+</h3>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/AlvesKS/ec50estimator" class="external-link">ec50estimator</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://www.r-project.org" class="external-link">drc</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org" class="external-link">magrittr</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://wilkelab.org/cowplot/" class="external-link">cowplot</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://wilkelab.org/ggridges/" class="external-link">ggridges</a></span><span class="op">)</span></code></pre></div>
 </div>
-<div id="data" class="section level2">
-<h2 class="hasAnchor">
-<a href="#data" class="anchor"></a>Data</h2>
+<div class="section level3">
+<h3 id="data">Data<a class="anchor" aria-label="anchor" href="#data"></a>
+</h3>
 <p>In the package I provide this dataset <code>multi_isolate</code> where contain simulated data of mycelial growth under increasing fungicide doses for 50 fungal isolates, two types of field (conventional and organic), and two different fungicides.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit">
-<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="kw">multi_isolate</span>)
-</pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">multi_isolate</span><span class="op">)</span></code></pre></div>
 <p>Use <code>ggplot2</code> to plot the data</p>
-<div class="sourceCode" id="cb3"><pre class="downlit">
-<span class="kw">multi_isolate</span> <span class="op">%&gt;%</span> 
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="kw">dose</span>, <span class="kw">growth</span>, color = <span class="kw">growth</span>))<span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_jitter.html">geom_jitter</a></span>(width = <span class="fl">0.1</span>)<span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html">facet_grid</a></span>(<span class="kw">field</span><span class="op">~</span><span class="kw">fungicida</span>)<span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_x_log10</a></span>()<span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html">scale_color_viridis_c</a></span>(option = <span class="st">"B"</span>,direction = <span class="fl">1</span>)<span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_light</a></span>()
-</pre></div>
-<pre><code>## Warning: Transformation introduced infinite values in continuous x-axis</code></pre>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">multi_isolate</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> 
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">dose</span>, <span class="va">growth</span>, color <span class="op">=</span> <span class="va">growth</span><span class="op">)</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_jitter.html" class="external-link">geom_jitter</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html" class="external-link">facet_grid</a></span><span class="op">(</span><span class="va">field</span><span class="op">~</span><span class="va">fungicida</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_log10</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_color_viridis_c</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"B"</span>,direction <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_light</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<pre><code><span class="co">## Warning: Transformation introduced infinite values in continuous x-axis</span></code></pre>
+<pre><code><span class="co">## Warning: Removed 500 rows containing missing values (geom_point).</span></code></pre>
 <p><img src="how_to_use_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
-<p>The function <code><a href="../reference/estimate_EC50.html">estimate_EC50()</a></code> is used to calculate EC50s for each isolate within each culture system and for each fungicide. As in function <code><a href="https://rdrr.io/pkg/drc/man/drm.html">drc::drm()</a></code>, in <code><a href="../reference/estimate_EC50.html">estimate_EC50()</a></code> you also need to provide the formula. Provide also the argument <code>data</code>, which is an object data.frame where your data are. Indicate the column that identifies each isolate in the argument <code>isolate_col</code>. If your data is stratified (by region, cropping system or year, for example) indicate the columns in the argument <code>strata_col</code>. Indicate the model to be used in the argument <code>fct</code> (same as in the package <code>drc</code>). Please, inform the model function with the <code><a href="https://rdrr.io/r/base/ns-dblcolon.html">::</a></code> operator to inform the <code>drc</code> package(e.g. <code><a href="https://rdrr.io/pkg/drc/man/LL.4.html">drc::LL.4()</a></code>). If you want confidence intervals to be estimated, indicate in the argument <code>interval</code> (it works the same way it works in the function <code><a href="https://rdrr.io/pkg/drc/man/drm.html">drc::drm()</a></code>).</p>
-<div class="sourceCode" id="cb5"><pre class="downlit">
-<span class="kw">df_ec50</span> <span class="op">=</span> <span class="fu"><a href="../reference/estimate_EC50.html">estimate_EC50</a></span>(<span class="kw">growth</span><span class="op">~</span><span class="kw">dose</span>,
-                        data =<span class="kw">multi_isolate</span>,
-                        isolate_col = <span class="st">"isolate"</span>, 
-                        strata_col =  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"field"</span>,<span class="st">"fungicida"</span>),
-                        interval = <span class="st">"delta"</span>,
-                        fct = <span class="kw">drc</span>::<span class="fu"><a href="https://rdrr.io/pkg/drc/man/LL.3.html">LL.3</a></span>())
-<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="kw">df_ec50</span>)
-</pre></div>
-<pre><code>##   ID   field   fungicida    Estimate   Std..Error       Lower       Upper
-## 1  1 Organic Fungicide A 0.006072082 0.0005740341 0.004902813 0.007241351
-## 2  3 Organic Fungicide A 0.003776957 0.0002432571 0.003281459 0.004272456
-## 3  5 Organic Fungicide A 0.006122508 0.0004575060 0.005190599 0.007054418
-## 4  7 Organic Fungicide A 0.006532201 0.0005278730 0.005456959 0.007607443
-## 5  9 Organic Fungicide A 0.005115267 0.0004672111 0.004163589 0.006066945
-## 6 11 Organic Fungicide A 0.005044116 0.0005000569 0.004025533 0.006062698</code></pre>
-<p>ATTENTION: In this tutorial I used the same model (<code><a href="https://rdrr.io/pkg/drc/man/LL.3.html">drc::LL.3()</a></code>) for the two fungicides (A and B). However, it is important to check which model is most appropriate for your data. To do this, before running the function <code><a href="../reference/estimate_EC50.html">estimate_EC50()</a></code> for all your data, use the function <code><a href="https://rdrr.io/pkg/drc/man/drm.html">drm()</a></code> to adjust a model for some isolates and later use the function <code><a href="https://rdrr.io/pkg/drc/man/mselect.html">drc::mselect()</a></code> to calculate the statistics that will help you select the best model. Tip: the lower the AIC value, the better the model. For more information, run the command <code>?mselecton</code> in your Console.</p>
+<p>The function <code><a href="../reference/estimate_EC50.html">estimate_EC50()</a></code> is used to calculate EC50s for each isolate within each culture system and for each fungicide. As in function <code><a href="https://rdrr.io/pkg/drc/man/drm.html" class="external-link">drc::drm()</a></code>, in <code><a href="../reference/estimate_EC50.html">estimate_EC50()</a></code> you also need to provide the formula. Provide also the argument <code>data</code>, which is an object data.frame where your data are. Indicate the column that identifies each isolate in the argument <code>isolate_col</code>. If your data is stratified (by region, cropping system or year, for example) indicate the columns in the argument <code>strata_col</code>. Indicate the model to be used in the argument <code>fct</code> (same as in the package <code>drc</code>). Please, inform the model function with the <code>::</code> operator to inform the <code>drc</code> package(e.g. <code><a href="https://rdrr.io/pkg/drc/man/LL.4.html" class="external-link">drc::LL.4()</a></code>). If you want confidence intervals to be estimated, indicate in the argument <code>interval</code> (it works the same way it works in the function <code><a href="https://rdrr.io/pkg/drc/man/drm.html" class="external-link">drc::drm()</a></code>).</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">df_ec50</span> <span class="op">=</span> <span class="fu"><a href="../reference/estimate_EC50.html">estimate_EC50</a></span><span class="op">(</span><span class="va">growth</span><span class="op">~</span><span class="va">dose</span>,
+                        data <span class="op">=</span><span class="va">multi_isolate</span>,
+                        isolate_col <span class="op">=</span> <span class="st">"isolate"</span>, 
+                        strata_col <span class="op">=</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"field"</span>,<span class="st">"fungicida"</span><span class="op">)</span>,
+                        interval <span class="op">=</span> <span class="st">"delta"</span>,
+                        fct <span class="op">=</span> <span class="fu">drc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/drc/man/LL.3.html" class="external-link">LL.3</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">df_ec50</span><span class="op">)</span></code></pre></div>
+<pre><code><span class="co">##   ID   field   fungicida    Estimate   Std..Error       Lower       Upper</span>
+<span class="co">## 1  1 Organic Fungicide A 0.006072082 0.0005740341 0.004902813 0.007241351</span>
+<span class="co">## 2  3 Organic Fungicide A 0.003776957 0.0002432571 0.003281459 0.004272456</span>
+<span class="co">## 3  5 Organic Fungicide A 0.006122508 0.0004575060 0.005190599 0.007054418</span>
+<span class="co">## 4  7 Organic Fungicide A 0.006532201 0.0005278730 0.005456959 0.007607443</span>
+<span class="co">## 5  9 Organic Fungicide A 0.005115267 0.0004672111 0.004163589 0.006066945</span>
+<span class="co">## 6 11 Organic Fungicide A 0.005044116 0.0005000569 0.004025533 0.006062698</span></code></pre>
+<p>ATTENTION: In this tutorial I used the same model (<code><a href="https://rdrr.io/pkg/drc/man/LL.3.html" class="external-link">drc::LL.3()</a></code>) for the two fungicides (A and B). However, it is important to check which model is most appropriate for your data. To do this, before running the function <code><a href="../reference/estimate_EC50.html">estimate_EC50()</a></code> for all your data, use the function <code><a href="https://rdrr.io/pkg/drc/man/drm.html" class="external-link">drm()</a></code> to adjust a model for some isolates and later use the function <code><a href="https://rdrr.io/pkg/drc/man/mselect.html" class="external-link">drc::mselect()</a></code> to calculate the statistics that will help you select the best model. Tip: the lower the AIC value, the better the model. For more information, run the command <code>?mselecton</code> in your Console.</p>
 </div>
 </div>
-<div id="visualization" class="section level1">
-<h1 class="hasAnchor">
-<a href="#visualization" class="anchor"></a>Visualization</h1>
+<div class="section level2">
+<h2 id="visualization">Visualization<a class="anchor" aria-label="anchor" href="#visualization"></a>
+</h2>
 <p>See EC50 estimates and confidence intervals for all isolates.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit">
-<span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>(<span class="kw">df_ec50</span>) <span class="op">%&gt;%</span> 
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(ID = <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span>(<span class="kw">ID</span>)) <span class="op">%&gt;%</span> 
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="kw">ID</span>, <span class="kw">Estimate</span>, color = <span class="kw">field</span>))<span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span>(size = <span class="fl">2</span>)<span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html">geom_errorbar</a></span>(<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(ymin=<span class="kw">Lower</span>,ymax = <span class="kw">Upper</span>, color = <span class="kw">field</span>), width=<span class="fl">0</span>)<span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap</a></span>(<span class="op">~</span><span class="kw">fungicida</span>, scales = <span class="st">"free_x"</span>, ncol = <span class="fl">2</span>)<span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_y_log10</a></span>()<span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_x_continuous</a></span>(breaks = <span class="fl">1</span><span class="op">:</span><span class="fl">50</span>)<span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html">scale_color_manual</a></span>(values = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"darkred"</span>, <span class="st">"steelblue"</span>))<span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span>(x = <span class="st">"Isolates"</span>, y = <span class="st">"EC50"</span>)<span class="op">+</span>
-  <span class="fu"><a href="https://rdrr.io/pkg/cowplot/man/theme_minimal_grid.html">theme_minimal_vgrid</a></span>(font_size = <span class="fl">10</span>)<span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_flip.html">coord_flip</a></span>()<span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span>(axis.text.x = <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span>(size=<span class="fl">10</span>),
-        legend.position = <span class="st">"bottom"</span>)
-</pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">df_ec50</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> 
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>ID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">ID</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> 
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">ID</span>, <span class="va">Estimate</span>, color <span class="op">=</span> <span class="va">field</span><span class="op">)</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html" class="external-link">geom_errorbar</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>ymin<span class="op">=</span><span class="va">Lower</span>,ymax <span class="op">=</span> <span class="va">Upper</span>, color <span class="op">=</span> <span class="va">field</span><span class="op">)</span>, width<span class="op">=</span><span class="fl">0</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">fungicida</span>, scales <span class="op">=</span> <span class="st">"free_x"</span>, ncol <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">50</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_color_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"darkred"</span>, <span class="st">"steelblue"</span><span class="op">)</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Isolates"</span>, y <span class="op">=</span> <span class="st">"EC50"</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://wilkelab.org/cowplot/reference/theme_minimal_grid.html" class="external-link">theme_minimal_vgrid</a></span><span class="op">(</span>font_size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_flip.html" class="external-link">coord_flip</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size<span class="op">=</span><span class="fl">10</span><span class="op">)</span>,
+        legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></code></pre></div>
 <p><img src="how_to_use_files/figure-html/unnamed-chunk-5-1.png" width="576"> Use the package ggridges to create density charts.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit">
-<span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>(<span class="kw">df_ec50</span>) <span class="op">%&gt;%</span> 
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="kw">Estimate</span>, <span class="kw">field</span>, fill = <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes_eval.html">stat</a></span>(<span class="kw">x</span>)))<span class="op">+</span>
-  <span class="fu"><a href="https://rdrr.io/pkg/ggridges/man/geom_ridgeline_gradient.html">geom_density_ridges_gradient</a></span>(alpha = <span class="fl">0.3</span>)<span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_x_log10</a></span>()<span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html">scale_fill_viridis_c</a></span>(option = <span class="st">"C"</span>)<span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap</a></span>(<span class="op">~</span><span class="kw">fungicida</span>, nrow = <span class="fl">2</span>)<span class="op">+</span>
-  <span class="fu"><a href="https://rdrr.io/pkg/cowplot/man/theme_minimal_grid.html">theme_minimal_hgrid</a></span>()<span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span>(x = <span class="st">"EC50"</span>, y = <span class="st">"Field"</span>)<span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span>(legend.position = <span class="st">"none"</span>)
-</pre></div>
-<pre><code>## Picking joint bandwidth of 0.0328</code></pre>
-<pre><code>## Picking joint bandwidth of 0.0285</code></pre>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">df_ec50</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> 
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">Estimate</span>, <span class="va">field</span>, fill <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes_eval.html" class="external-link">stat</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://wilkelab.org/ggridges/reference/geom_ridgeline_gradient.html" class="external-link">geom_density_ridges_gradient</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_log10</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_c</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"C"</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">fungicida</span>, nrow <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://wilkelab.org/cowplot/reference/theme_minimal_grid.html" class="external-link">theme_minimal_hgrid</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"EC50"</span>, y <span class="op">=</span> <span class="st">"Field"</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></code></pre></div>
+<pre><code><span class="co">## Picking joint bandwidth of 0.0328</span></code></pre>
+<pre><code><span class="co">## Picking joint bandwidth of 0.0285</span></code></pre>
 <p><img src="how_to_use_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
 </div>
   </div>
@@ -207,11 +198,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Kaique dos S. Alves.</p>
+  <p></p>
+<p>Developed by Kaique dos S. Alves.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
 </div>
 
       </footer>
@@ -219,6 +212,8 @@
 
   
 
+
+  
 
   </body>
 </html>
