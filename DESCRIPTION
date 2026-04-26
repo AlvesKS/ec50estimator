@@ -1,8 +1,8 @@
 Package: ec50estimator
 Type: Package
 Title: An Automated Way to Estimate EC50 for Stratified Datasets
-Version: 0.2.0
-Date: 2022-03-03
+Version: 1.0.0
+Date: 2026-04-25
 Authors@R: c(
     person(given = "Kaique dos S.",
            family = "Alves", 
@@ -19,9 +19,11 @@ Description: An implementation for estimating Effective control to 50% of growth
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-Imports: dplyr, tidyr, tibble, tidyselect, magrittr, drc
-RoxygenNote: 7.0.2
+Depends: R (>= 3.5.0)
+Imports: drc
+RoxygenNote: 7.3.2
 VignetteBuilder: knitr
-Suggests: knitr, rmarkdown, ggplot2, ggridges, cowplot
-URL: https://github.com/AlvesKS/ec50estimator
-BugReports:https://github.com/AlvesKS/ec50estimator/issues
+Suggests: knitr, rmarkdown, ggplot2, ggridges, cowplot, testthat (>= 3.0.0)
+Config/testthat/edition: 3
+URL: https://alvesks.github.io/ec50estimator/, https://github.com/AlvesKS/ec50estimator
+BugReports: https://github.com/AlvesKS/ec50estimator/issues

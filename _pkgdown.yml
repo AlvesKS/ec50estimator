@@ -1,1 +1,27 @@
+url: https://alvesks.github.io/ec50estimator/
+template:
+  bootstrap: 5
+  bootswatch: flatly
+
+navbar:
+  structure:
+    left: [intro, reference, articles, news]
+    right: [search, github]
+
+reference:
+  - title: Estimate EC50
+    contents:
+      - estimate_EC50
+      - ec50_multimodel
+  - title: Data
+    contents:
+      - multi_isolate
+
+articles:
+  - title: Vignettes
+    navbar: ~
+    contents:
+      - estimate_EC50
+      - ec50_multimodel
+
 destination: docs

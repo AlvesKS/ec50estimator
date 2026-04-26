@@ -1,33 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/multi_isolate.html</loc>
-  </url>
-  <url>
-    <loc>/reference/estimate_EC50.html</loc>
-  </url>
-  <url>
-    <loc>/reference/ec50_multimodel.html</loc>
-  </url>
-  <url>
-    <loc>/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>/articles/how_to_use.html</loc>
-  </url>
-  <url>
-    <loc>/404.html</loc>
-  </url>
-  <url>
-    <loc>/authors.html</loc>
-  </url>
-  <url>
-    <loc>/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>/index.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://alvesks.github.io/ec50estimator/404.html</loc></url>
+<url><loc>https://alvesks.github.io/ec50estimator/articles/ec50_multimodel.html</loc></url>
+<url><loc>https://alvesks.github.io/ec50estimator/articles/estimate_EC50.html</loc></url>
+<url><loc>https://alvesks.github.io/ec50estimator/articles/index.html</loc></url>
+<url><loc>https://alvesks.github.io/ec50estimator/authors.html</loc></url>
+<url><loc>https://alvesks.github.io/ec50estimator/index.html</loc></url>
+<url><loc>https://alvesks.github.io/ec50estimator/LICENSE-text.html</loc></url>
+<url><loc>https://alvesks.github.io/ec50estimator/news/index.html</loc></url>
+<url><loc>https://alvesks.github.io/ec50estimator/reference/estimate_EC50.html</loc></url>
+<url><loc>https://alvesks.github.io/ec50estimator/reference/index.html</loc></url>
+<url><loc>https://alvesks.github.io/ec50estimator/reference/multi_isolate.html</loc></url>
 </urlset>
+

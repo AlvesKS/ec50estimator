@@ -1,0 +1,100 @@
+---
+title: "Estimate EC50 with one model"
+author: "Kaique S Alves"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Estimate EC50 with one model}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Introduction
+
+Use `estimate_EC50()` when you already know which dose-response model should be fitted to each isolate. The function runs the same `drc` model across isolates and optional strata, then returns a single data frame with the EC estimates.
+
+# Packages
+
+```{r message=FALSE, warning=FALSE}
+library(ec50estimator)
+library(drc)
+library(ggplot2)
+library(cowplot)
+library(ggridges)
+```
+
+# Data
+
+The package includes `multi_isolate`, a simulated dataset of mycelial growth under increasing fungicide doses for 50 fungal isolates, two field systems, and two fungicides.
+
+```{r}
+data(multi_isolate)
+head(multi_isolate)
+```
+
+Inspect the raw dose-response data before fitting models.
+
+```{r fig.alt="Jitter plot of mycelial growth by fungicide dose, faceted by field system and fungicide."}
+ggplot(multi_isolate, aes(dose, growth, color = growth)) +
+  geom_jitter(width = 0.1) +
+  facet_grid(field ~ fungicida) +
+  scale_x_log10() +
+  scale_color_viridis_c(option = "B", direction = 1) +
+  theme_light()
+```
+
+# Estimate EC50
+
+`estimate_EC50()` needs the same model ingredients you would pass to `drc::drm()`: a formula, a data frame, and a model function such as `drc::LL.3()`. Use `isolate_col` to identify isolates and `strata_col` for grouping columns such as field, fungicide, year, or location.
+
+```{r}
+df_ec50 <- estimate_EC50(
+  growth ~ dose,
+  data = multi_isolate,
+  isolate_col = "isolate",
+  strata_col = c("field", "fungicida"),
+  interval = "delta",
+  fct = drc::LL.3()
+)
+
+head(df_ec50)
+```
+
+The result keeps the isolate identifier in `ID`, then returns the strata columns and the effective-dose estimate columns from `drc::ED()`.
+
+# Visualize Results
+
+Plot EC50 estimates and confidence intervals for all isolates.
+
+```{r fig.height=10, fig.width=6, fig.alt="Point and interval plot of EC50 estimates for isolates, grouped by field system and fungicide."}
+plot_ec50 <- df_ec50
+plot_ec50$ID <- as.numeric(plot_ec50$ID)
+
+ggplot(plot_ec50, aes(ID, Estimate, color = field)) +
+  geom_point(size = 2) +
+  geom_errorbar(aes(ymin = Lower, ymax = Upper, color = field), width = 0) +
+  facet_wrap(~fungicida, scales = "free_x", ncol = 2) +
+  scale_y_log10() +
+  scale_x_continuous(breaks = 1:50) +
+  scale_color_manual(values = c("darkred", "steelblue")) +
+  labs(x = "Isolates", y = "EC50") +
+  theme_minimal_vgrid(font_size = 10) +
+  coord_flip() +
+  theme(
+    axis.text.x = element_text(size = 10),
+    legend.position = "bottom"
+  )
+```
+
+Density plots can help compare EC50 distributions between strata.
+
+```{r fig.alt="Density ridge plot comparing EC50 distributions between field systems for each fungicide."}
+ggplot(df_ec50, aes(Estimate, field, fill = after_stat(x))) +
+  geom_density_ridges_gradient(alpha = 0.3) +
+  scale_x_log10() +
+  scale_fill_viridis_c(option = "C") +
+  facet_wrap(~fungicida, nrow = 2) +
+  theme_minimal_hgrid() +
+  labs(x = "EC50", y = "Field") +
+  theme(legend.position = "none")
+```

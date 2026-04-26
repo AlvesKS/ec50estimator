@@ -1,0 +1,96 @@
+---
+title: "Compare EC50 models"
+author: "Kaique S Alves"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Compare EC50 models}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Introduction
+
+Use `ec50_multimodel()` when you want to fit more than one candidate `drc` model to the same isolates and strata. This is useful during model selection, when you need EC estimates and model-selection statistics in the same output.
+
+# Packages
+
+```{r message=FALSE, warning=FALSE}
+library(ec50estimator)
+library(drc)
+library(ggplot2)
+```
+
+# Data
+
+The examples use a small subset of `multi_isolate` so the vignette runs quickly while still showing the grouped workflow.
+
+```{r}
+data(multi_isolate)
+
+example_data <- subset(
+  multi_isolate,
+  isolate %in% 1:5 & fungicida == "Fungicide A"
+)
+
+head(example_data)
+```
+
+Inspect the raw dose-response observations before comparing models. Because each isolate can have repeated observations at the same dose, this plot uses jittered points instead of connecting observations with lines.
+
+```{r fig.alt="Jittered dose-response scatter plot for five isolates exposed to Fungicide A, faceted by field system."}
+ggplot(example_data, aes(dose, growth, color = factor(isolate))) +
+  geom_jitter(width = 0.08, height = 0, alpha = 0.85, size = 2) +
+  facet_wrap(~field) +
+  scale_x_log10() +
+  labs(x = "Dose", y = "Growth", color = "Isolate") +
+  theme_light()
+```
+
+# Compare Models
+
+Pass a list of candidate model functions to `fct`. The function fits each model for each isolate and stratum, then appends model-selection statistics returned by `drc::mselect()`.
+
+```{r}
+df_models <- ec50_multimodel(
+  growth ~ dose,
+  data = example_data,
+  isolate_col = "isolate",
+  strata_col = "field",
+  fct = list(drc::LL.3(), drc::LL.4(), drc::W2.3()),
+  interval = "delta"
+)
+
+head(df_models)
+```
+
+The `model` column identifies the candidate model. The `IC` column is the information criterion reported by `drc::mselect()` for the fitted model.
+
+# Pick Candidate Models
+
+You can rank candidate models within each isolate and stratum using base R. Lower `IC` values indicate stronger relative support among the compared models.
+
+```{r}
+ranked_models <- df_models[order(df_models$field, df_models$ID, df_models$IC), ]
+best_models <- ranked_models[!duplicated(ranked_models[c("field", "ID")]), ]
+
+best_models[, c("ID", "field", "model", "Estimate", "Std..Error", "IC")]
+```
+
+# Visualize Model Comparison
+
+Plot the information criterion across isolates to see whether one model is consistently preferred.
+
+```{r fig.alt="Point plot of information criterion values by isolate for each candidate model and field system."}
+plot_models <- df_models
+plot_models$ID <- as.numeric(plot_models$ID)
+
+ggplot(plot_models, aes(ID, IC, color = model)) +
+  geom_point(position = position_dodge(width = 0.35), size = 2) +
+  facet_wrap(~field) +
+  scale_x_continuous(breaks = sort(unique(plot_models$ID))) +
+  labs(x = "Isolate", y = "Information criterion") +
+  theme_light()
+```
+
+After choosing an appropriate model, use `estimate_EC50()` for the final estimation workflow if a single model should be applied across the full dataset.

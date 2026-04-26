@@ -1,7 +1,10 @@
-pandoc: 2.14.0.3
-pkgdown: 2.0.2
+pandoc: '3.4'
+pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
-  how_to_use: how_to_use.html
-last_built: 2022-03-03T18:40Z
-
+  ec50_multimodel: ec50_multimodel.html
+  estimate_EC50: estimate_EC50.html
+last_built: 2026-04-26T03:28Z
+urls:
+  reference: https://alvesks.github.io/ec50estimator/reference
+  article: https://alvesks.github.io/ec50estimator/articles
