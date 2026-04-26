@@ -2,18 +2,21 @@
 title: "Compare EC50 models"
 author: "Kaique S Alves"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 2
 vignette: >
   %\VignetteIndexEntry{Compare EC50 models}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-# Introduction
+## Introduction
 
 Use `ec50_multimodel()` when you want to fit more than one candidate `drc` model to the same isolates and strata. This is useful during model selection, when you need EC estimates and model-selection statistics in the same output.
 
-# Packages
+## Packages
 
 ```{r message=FALSE, warning=FALSE}
 library(ec50estimator)
@@ -21,7 +24,7 @@ library(drc)
 library(ggplot2)
 ```
 
-# Data
+## Data
 
 The examples use a small subset of `multi_isolate` so the vignette runs quickly while still showing the grouped workflow.
 
@@ -47,7 +50,7 @@ ggplot(example_data, aes(dose, growth, color = factor(isolate))) +
   theme_light()
 ```
 
-# Compare Models
+## Compare Models
 
 Pass a list of candidate model functions to `fct`. The function fits each model for each isolate and stratum, then appends model-selection statistics returned by `drc::mselect()`.
 
@@ -66,7 +69,7 @@ head(df_models)
 
 The `model` column identifies the candidate model. The `IC` column is the information criterion reported by `drc::mselect()` for the fitted model.
 
-# Pick Candidate Models
+## Pick Candidate Models
 
 You can rank candidate models within each isolate and stratum using base R. Lower `IC` values indicate stronger relative support among the compared models.
 
@@ -77,7 +80,7 @@ best_models <- ranked_models[!duplicated(ranked_models[c("field", "ID")]), ]
 best_models[, c("ID", "field", "model", "Estimate", "Std..Error", "IC")]
 ```
 
-# Visualize Model Comparison
+## Visualize Model Comparison
 
 Plot the information criterion across isolates to see whether one model is consistently preferred.
 

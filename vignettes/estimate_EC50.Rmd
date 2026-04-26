@@ -2,18 +2,21 @@
 title: "Estimate EC50 with one model"
 author: "Kaique S Alves"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 2
 vignette: >
   %\VignetteIndexEntry{Estimate EC50 with one model}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-# Introduction
+## Introduction
 
 Use `estimate_EC50()` when you already know which dose-response model should be fitted to each isolate. The function runs the same `drc` model across isolates and optional strata, then returns a single data frame with the EC estimates.
 
-# Packages
+## Packages
 
 ```{r message=FALSE, warning=FALSE}
 library(ec50estimator)
@@ -23,7 +26,7 @@ library(cowplot)
 library(ggridges)
 ```
 
-# Data
+## Data
 
 The package includes `multi_isolate`, a simulated dataset of mycelial growth under increasing fungicide doses for 50 fungal isolates, two field systems, and two fungicides.
 
@@ -43,7 +46,7 @@ ggplot(multi_isolate, aes(dose, growth, color = growth)) +
   theme_light()
 ```
 
-# Estimate EC50
+## Estimate EC50
 
 `estimate_EC50()` needs the same model ingredients you would pass to `drc::drm()`: a formula, a data frame, and a model function such as `drc::LL.3()`. Use `isolate_col` to identify isolates and `strata_col` for grouping columns such as field, fungicide, year, or location.
 
@@ -62,7 +65,7 @@ head(df_ec50)
 
 The result keeps the isolate identifier in `ID`, then returns the strata columns and the effective-dose estimate columns from `drc::ED()`.
 
-# Visualize Results
+## Visualize Results
 
 Plot EC50 estimates and confidence intervals for all isolates.
 
