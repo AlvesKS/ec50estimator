@@ -14,6 +14,7 @@ test_that("ec50_estimates returns a plain data frame", {
   expect_s3_class(estimates, "data.frame")
   expect_false(inherits(estimates, "ec50_estimate"))
   expect_named(estimates, names(as.data.frame(fit)))
+  expect_equal(row.names(estimates), as.character(seq_len(nrow(estimates))))
 })
 
 test_that("ec50_metadata returns stable modeling metadata", {

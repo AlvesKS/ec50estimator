@@ -157,6 +157,47 @@ test_that("plot_EC50_curves handles zero doses on a log x-axis", {
   expect_true(all(plot$layers[[2]]$data$dose > 0))
 })
 
+test_that("plot_EC50_curves quiet mode suppresses drc fitting messages", {
+  data(multi_isolate)
+  bad_data <- subset(
+    multi_isolate,
+    isolate == 1 & field == "Organic" & fungicida == "Fungicide A"
+  )[1, , drop = FALSE]
+
+  expect_error(
+    expect_message(
+      plot_EC50_curves(
+        growth ~ dose,
+        data = bad_data,
+        isolate_col = "isolate",
+        fct = drc::LL.3(),
+        quiet = TRUE
+      ),
+      NA
+    ),
+    "No fitted curves"
+  )
+})
+
+test_that("plot_EC50_curves quiet mode still returns plots for valid data", {
+  data(multi_isolate)
+  sample_data <- subset(
+    multi_isolate,
+    isolate == 1 & field == "Organic" & fungicida == "Fungicide A"
+  )
+
+  expect_silent(
+    plot <- plot_EC50_curves(
+      growth ~ dose,
+      data = sample_data,
+      isolate_col = "isolate",
+      fct = drc::LL.3(),
+      quiet = TRUE
+    )
+  )
+  expect_s3_class(plot, "ggplot")
+})
+
 test_that("plot_EC50_curves uses sensible faceting defaults", {
   data(multi_isolate)
   sample_data <- subset(
@@ -222,4 +263,24 @@ test_that("plot_EC50_curves carries explicit plotting columns into predictions",
   expect_s3_class(plot, "ggplot")
   expect_true("field" %in% names(plot$layers[[2]]$data))
   expect_s3_class(plot$facet, "FacetWrap")
+})
+
+test_that("plot_EC50_curves requires fitted output for best-model plotting", {
+  data(multi_isolate)
+  sample_data <- subset(
+    multi_isolate,
+    isolate == 1 & field == "Organic" & fungicida == "Fungicide A"
+  )
+
+  expect_error(
+    plot_EC50_curves(
+      growth ~ dose,
+      data = sample_data,
+      isolate_col = "isolate",
+      fct = list(drc::LL.3(), drc::LL.4()),
+      models = "best",
+      quiet = TRUE
+    ),
+    "requires an object returned by ec50_multimodel"
+  )
 })

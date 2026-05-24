@@ -167,13 +167,13 @@ isolate and strata. The remaining columns contain the EC50 estimate and
 uncertainty columns returned by <code><a href="https://rdrr.io/pkg/drc/man/ED.drc.html" class="external-link">drc::ED()</a></code>.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/ec50_extractors.html">ec50_estimates</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##     ID        field    Estimate   Std..Error       Lower       Upper</span></span>
-<span><span class="co">## 1    1      Organic 0.006072082 0.0005740341 0.004902813 0.007241351</span></span>
-<span><span class="co">## 36   2 Conventional 0.101455765 0.0076364691 0.085900787 0.117010744</span></span>
-<span><span class="co">## 71   3      Organic 0.003776957 0.0002432571 0.003281459 0.004272456</span></span>
-<span><span class="co">## 106  4 Conventional 0.079971237 0.0055655891 0.068634503 0.091307971</span></span>
-<span><span class="co">## 141  5      Organic 0.006122508 0.0004575060 0.005190599 0.007054418</span></span>
-<span><span class="co">## 176  6 Conventional 0.076487301 0.0077836630 0.060632498 0.092342103</span></span></code></pre>
+<pre><code><span><span class="co">##   ID        field    Estimate   Std..Error       Lower       Upper</span></span>
+<span><span class="co">## 1  1      Organic 0.006072082 0.0005740341 0.004902813 0.007241351</span></span>
+<span><span class="co">## 2  2 Conventional 0.101455765 0.0076364691 0.085900787 0.117010744</span></span>
+<span><span class="co">## 3  3      Organic 0.003776957 0.0002432571 0.003281459 0.004272456</span></span>
+<span><span class="co">## 4  4 Conventional 0.079971237 0.0055655891 0.068634503 0.091307971</span></span>
+<span><span class="co">## 5  5      Organic 0.006122508 0.0004575060 0.005190599 0.007054418</span></span>
+<span><span class="co">## 6  6 Conventional 0.076487301 0.0077836630 0.060632498 0.092342103</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="review-the-fit-object">Review the Fit Object<a class="anchor" aria-label="anchor" href="#review-the-fit-object"></a>
@@ -200,20 +200,20 @@ uncertainty columns returned by <code><a href="https://rdrr.io/pkg/drc/man/ED.dr
 <span><span class="co">## [1] 6</span></span></code></pre>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/fit_quality.html">fit_quality</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##     ID        field model fit_status n_obs n_doses dose_min dose_max</span></span>
-<span><span class="co">## 1    1      Organic  LL.3         ok    35       7        0        1</span></span>
-<span><span class="co">## 36   2 Conventional  LL.3         ok    35       7        0        1</span></span>
-<span><span class="co">## 71   3      Organic  LL.3         ok    35       7        0        1</span></span>
-<span><span class="co">## 106  4 Conventional  LL.3         ok    35       7        0        1</span></span>
-<span><span class="co">## 141  5      Organic  LL.3         ok    35       7        0        1</span></span>
-<span><span class="co">## 176  6 Conventional  LL.3         ok    35       7        0        1</span></span>
-<span><span class="co">##     response_min response_max message</span></span>
-<span><span class="co">## 1     0.07631550     20.66667    &lt;NA&gt;</span></span>
-<span><span class="co">## 36    1.24394259     20.75420    &lt;NA&gt;</span></span>
-<span><span class="co">## 71    0.06118528     20.78938    &lt;NA&gt;</span></span>
-<span><span class="co">## 106   1.64277882     20.99232    &lt;NA&gt;</span></span>
-<span><span class="co">## 141   0.10539854     20.54952    &lt;NA&gt;</span></span>
-<span><span class="co">## 176   0.90268178     20.74523    &lt;NA&gt;</span></span></code></pre>
+<pre><code><span><span class="co">##   ID        field model fit_status n_obs n_doses dose_min dose_max response_min</span></span>
+<span><span class="co">## 1  1      Organic  LL.3         ok    35       7        0        1   0.07631550</span></span>
+<span><span class="co">## 2  2 Conventional  LL.3         ok    35       7        0        1   1.24394259</span></span>
+<span><span class="co">## 3  3      Organic  LL.3         ok    35       7        0        1   0.06118528</span></span>
+<span><span class="co">## 4  4 Conventional  LL.3         ok    35       7        0        1   1.64277882</span></span>
+<span><span class="co">## 5  5      Organic  LL.3         ok    35       7        0        1   0.10539854</span></span>
+<span><span class="co">## 6  6 Conventional  LL.3         ok    35       7        0        1   0.90268178</span></span>
+<span><span class="co">##   response_max message</span></span>
+<span><span class="co">## 1     20.66667    &lt;NA&gt;</span></span>
+<span><span class="co">## 2     20.75420    &lt;NA&gt;</span></span>
+<span><span class="co">## 3     20.78938    &lt;NA&gt;</span></span>
+<span><span class="co">## 4     20.99232    &lt;NA&gt;</span></span>
+<span><span class="co">## 5     20.54952    &lt;NA&gt;</span></span>
+<span><span class="co">## 6     20.74523    &lt;NA&gt;</span></span></code></pre>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/fit_quality.html">fit_failures</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] ID      field   model   message</span></span>
@@ -278,13 +278,13 @@ chosen by the user.</p>
 or manuscript work.</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/report_ec50.html">report_ec50</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##     ID        field    Estimate   Std..Error       Lower       Upper</span></span>
-<span><span class="co">## 1    1      Organic 0.006072082 0.0005740341 0.004902813 0.007241351</span></span>
-<span><span class="co">## 36   2 Conventional 0.101455765 0.0076364691 0.085900787 0.117010744</span></span>
-<span><span class="co">## 71   3      Organic 0.003776957 0.0002432571 0.003281459 0.004272456</span></span>
-<span><span class="co">## 106  4 Conventional 0.079971237 0.0055655891 0.068634503 0.091307971</span></span>
-<span><span class="co">## 141  5      Organic 0.006122508 0.0004575060 0.005190599 0.007054418</span></span>
-<span><span class="co">## 176  6 Conventional 0.076487301 0.0077836630 0.060632498 0.092342103</span></span></code></pre>
+<pre><code><span><span class="co">##   ID        field    Estimate   Std..Error       Lower       Upper</span></span>
+<span><span class="co">## 1  1      Organic 0.006072082 0.0005740341 0.004902813 0.007241351</span></span>
+<span><span class="co">## 2  2 Conventional 0.101455765 0.0076364691 0.085900787 0.117010744</span></span>
+<span><span class="co">## 3  3      Organic 0.003776957 0.0002432571 0.003281459 0.004272456</span></span>
+<span><span class="co">## 4  4 Conventional 0.079971237 0.0055655891 0.068634503 0.091307971</span></span>
+<span><span class="co">## 5  5      Organic 0.006122508 0.0004575060 0.005190599 0.007054418</span></span>
+<span><span class="co">## 6  6 Conventional 0.076487301 0.0077836630 0.060632498 0.092342103</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="build-a-custom-figure">Build a Custom Figure<a class="anchor" aria-label="anchor" href="#build-a-custom-figure"></a>

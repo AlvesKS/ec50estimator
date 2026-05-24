@@ -6,10 +6,10 @@
 #' the same workflow for several `drc` model functions and returns model-selection
 #' statistics with the estimates.
 #'
-#' @param formula A two-sided formula passed to [drc::drm()], for example
-#'   `growth ~ dose`.
-#' @param data A data frame containing the response, dose, isolate, and optional
-#'   stratification columns.
+#' @param formula A two-sided formula identifying one numeric response and one
+#'   numeric dose column, for example `growth ~ dose`.
+#' @param data A data frame containing the numeric response, numeric dose,
+#'   isolate, and optional stratification columns.
 #' @param EC_lvl Numeric effective-dose level(s) passed to [drc::ED()]. The
 #'   default estimates EC50.
 #' @param isolate_col Character scalar naming the column that identifies each
@@ -166,6 +166,9 @@ validate_ec50_inputs <- function(formula,
   if (!is.data.frame(data)) {
     stop("'data' must be a data frame.", call. = FALSE)
   }
+  formula_vars <- formula_variables(formula)
+  assert_columns(data, c(formula_vars$response, formula_vars$dose), "'formula'")
+  assert_numeric_columns(data, c(formula_vars$response, formula_vars$dose), "'formula'")
   if (!is.numeric(EC_lvl) || length(EC_lvl) < 1 || any(!is.finite(EC_lvl))) {
     stop("'EC_lvl' must contain finite numeric values.", call. = FALSE)
   }
@@ -229,7 +232,8 @@ estimate_single_model <- function(formula,
       fct = fct,
       interval = interval,
       type = type,
-      include_model_stats = include_model_stats
+      include_model_stats = include_model_stats,
+      quiet = quiet
     )
 
     if (inherits(fit, "try-error")) {
@@ -271,6 +275,9 @@ estimate_single_model <- function(formula,
   }
 
   result <- bind_rows(results)
+  if (ncol(result) == 0) {
+    result <- empty_estimate_result(strata_col, include_model_stats)
+  }
   attr(result, "ec50_models") <- fitted_models
   attr(result, "ec50_quality") <- bind_rows(quality_rows)
   attr(result, "ec50_failures") <- bind_rows(failure_rows)
@@ -283,8 +290,9 @@ try_fit_ec50 <- function(formula,
                          fct,
                          interval,
                          type,
-                         include_model_stats) {
-  try({
+                         include_model_stats,
+                         quiet) {
+  fit_expression <- quote({
     model <- drc::drm(formula, fct = fct, data = data)
     estimates <- as.data.frame(
       drc::ED(model, EC_lvl, interval = interval, display = FALSE, type = type)
@@ -302,7 +310,15 @@ try_fit_ec50 <- function(formula,
     }
 
     list(estimates = estimates, model = model, model_name = model_name)
-  }, silent = TRUE)
+  })
+  if (quiet) {
+    return(try({
+      utils::capture.output(result <- suppressMessages(eval(fit_expression)))
+      result
+    }, silent = TRUE))
+  }
+
+  try(eval(fit_expression), silent = TRUE)
 }
 
 new_ec50_result <- function(result,
@@ -468,4 +484,24 @@ bind_rows <- function(dfs) {
 empty_data_frame <- function(columns) {
   result <- stats::setNames(rep(list(character()), length(columns)), columns)
   as.data.frame(result, stringsAsFactors = FALSE)
+}
+
+assert_numeric_columns <- function(data, columns, argument) {
+  non_numeric <- columns[!vapply(data[columns], is.numeric, logical(1))]
+  if (length(non_numeric) > 0) {
+    stop(
+      argument,
+      " must identify numeric response and dose columns. Non-numeric column(s): ",
+      paste(non_numeric, collapse = ", "),
+      call. = FALSE
+    )
+  }
+}
+
+empty_estimate_result <- function(strata_col, include_model_stats) {
+  columns <- c("ID", strata_col, "Estimate", "Std..Error")
+  if (include_model_stats) {
+    columns <- c(columns, "logLik", "IC", "Lack.of.fit", "Res.var", "model")
+  }
+  empty_data_frame(columns)
 }

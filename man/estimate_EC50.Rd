@@ -30,11 +30,11 @@ ec50_multimodel(
 )
 }
 \arguments{
-\item{formula}{A two-sided formula passed to [drc::drm()], for example
-`growth ~ dose`.}
+\item{formula}{A two-sided formula identifying one numeric response and one
+numeric dose column, for example `growth ~ dose`.}
 
-\item{data}{A data frame containing the response, dose, isolate, and optional
-stratification columns.}
+\item{data}{A data frame containing the numeric response, numeric dose,
+isolate, and optional stratification columns.}
 
 \item{EC_lvl}{Numeric effective-dose level(s) passed to [drc::ED()]. The
 default estimates EC50.}

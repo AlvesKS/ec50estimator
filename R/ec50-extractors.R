@@ -140,6 +140,7 @@ validate_curve_data_inputs <- function(n_points, log_x) {
 strip_ec50_attributes <- function(x) {
   attributes(x) <- attributes(x)[c("names", "row.names")]
   class(x) <- "data.frame"
+  row.names(x) <- NULL
   x
 }
 

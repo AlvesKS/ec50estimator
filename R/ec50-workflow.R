@@ -33,6 +33,12 @@ model_selection <- function(x, criterion = "IC") {
   estimates <- ec50_estimates(x)
   required <- c("ID", "model", criterion)
   assert_columns(estimates, required, "'x'")
+  if (nrow(estimates) == 0) {
+    estimates$delta <- numeric()
+    estimates$weight <- numeric()
+    estimates$rank <- integer()
+    return(estimates)
+  }
   group_cols <- c("ID", attr(x, "ec50_strata_col"))
   groups <- split(seq_len(nrow(estimates)), estimates[group_cols], drop = TRUE)
 
@@ -237,11 +243,15 @@ check_ec50_data <- function(data,
     stop("'strata' must be NULL or a character vector.", call. = FALSE)
   }
   assert_columns(data, c(response, dose, isolate, strata), "'data'")
+  assert_numeric_columns(data, c(response, dose), "'data'")
   if (!is.logical(log_x) || length(log_x) != 1 || is.na(log_x)) {
     stop("'log_x' must be TRUE or FALSE.", call. = FALSE)
   }
 
   group_cols <- c(strata, isolate)
+  if (nrow(data) == 0) {
+    return(empty_check_ec50_data(strata))
+  }
   groups <- split(seq_len(nrow(data)), data[group_cols], drop = TRUE)
   checks <- lapply(groups, function(rows) {
     group_data <- data[rows, , drop = FALSE]
@@ -418,4 +428,13 @@ record_key <- function(record, isolate_col, strata_col) {
 reset_row_names <- function(data) {
   row.names(data) <- NULL
   data
+}
+
+empty_check_ec50_data <- function(strata) {
+  columns <- c(
+    "ID", strata, "n_obs", "n_doses", "missing_response", "missing_dose",
+    "nonpositive_dose", "duplicated_rows", "no_response_variation",
+    "too_few_observations", "too_few_doses"
+  )
+  empty_data_frame(columns)
 }

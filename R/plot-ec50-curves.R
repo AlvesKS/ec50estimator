@@ -90,6 +90,12 @@ plot_EC50_curves <- function(x,
     if (is.null(fct)) {
       stop("Please specify 'fct' when plotting from a formula.", call. = FALSE)
     }
+    if (length(models) == 1 && models == "best") {
+      stop(
+        "'models = \"best\"' requires an object returned by ec50_multimodel().",
+        call. = FALSE
+      )
+    }
     validate_ec50_inputs(
       formula = formula,
       data = data,
@@ -310,7 +316,8 @@ build_curve_predictions <- function(formula,
         model_fct = model_fct,
         model_name = model_name,
         n_points = n_points,
-        log_x = log_x
+        log_x = log_x,
+        quiet = quiet
       )
 
       if (inherits(prediction, "try-error")) {
@@ -399,8 +406,9 @@ try_predict_curve <- function(formula,
                               model_fct,
                               model_name,
                               n_points,
-                              log_x) {
-  try({
+                              log_x,
+                              quiet) {
+  prediction_expression <- quote({
     model_data <- prepare_model_data_for_plot(data, dose_col, log_x)
     model <- drc::drm(formula, fct = model_fct, data = model_data)
     predict_curve_data(
@@ -413,7 +421,15 @@ try_predict_curve <- function(formula,
       n_points = n_points,
       log_x = log_x
     )
-  }, silent = TRUE)
+  })
+  if (quiet) {
+    return(try({
+      utils::capture.output(result <- suppressMessages(eval(prediction_expression)))
+      result
+    }, silent = TRUE))
+  }
+
+  try(eval(prediction_expression), silent = TRUE)
 }
 
 try_predict_from_model <- function(formula,

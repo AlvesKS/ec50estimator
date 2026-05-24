@@ -47,8 +47,12 @@
 <li>Reorganized pkgdown and vignettes around the user workflow: check data, fit models, diagnose fits, select models, plot curves, predict, and report.</li>
 <li>Added a new getting-started vignette and rewrote the single-model and multimodel vignettes to emphasize fit objects as the main interface.</li>
 <li>Removed row-name warnings from <code><a href="../reference/predict_ec50.html">predict_ec50()</a></code> and <code><a href="../reference/residual_data.html">residual_data()</a></code>.</li>
+<li>Added clearer validation for formula, response, and dose inputs, including stable empty outputs when no groups can be fitted.</li>
+<li>Reset row names in extractor outputs and preserved model-selection columns for all-failed multimodel fits.</li>
+<li>Made <code>quiet = TRUE</code> suppress informational messages from internal <code>drc</code> fitting calls.</li>
+<li>Added a clear error when <code><a href="../reference/plot_EC50_curves.html">plot_EC50_curves()</a></code> is asked for <code>models = "best"</code> without a fitted <code>ec50_multimodel</code> object.</li>
 <li>Modernized EC50 estimation internals with shared validation, clearer errors, and warnings for failed isolate-level fits.</li>
-<li>Reduced imported dependencies to <code>drc</code>; <code>ggplot2</code> is imported for the exported plotting workflow.</li>
+<li>Kept runtime dependencies focused on <code>drc</code> and <code>ggplot2</code>.</li>
 <li>Removed vignette-only dependencies on <code>cowplot</code> and <code>ggridges</code>.</li>
 <li>Added support for <code>type = "relative"</code> and <code>type = "absolute"</code> in <code><a href="../reference/estimate_EC50.html">estimate_EC50()</a></code>.</li>
 <li>Added automated tests for grouped estimates, argument validation, absolute effective-dose levels, and multimodel output.</li>

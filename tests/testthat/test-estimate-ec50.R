@@ -47,6 +47,54 @@ test_that("estimate_EC50 validates inputs before fitting", {
     ),
     "columns not found"
   )
+
+  non_numeric <- multi_isolate
+  non_numeric$dose <- factor(non_numeric$dose)
+  expect_error(
+    estimate_EC50(
+      growth ~ dose,
+      data = non_numeric,
+      isolate_col = "isolate",
+      fct = drc::LL.3()
+    ),
+    "numeric response and dose"
+  )
+
+  expect_error(
+    estimate_EC50(
+      growth ~ dose + isolate,
+      data = multi_isolate,
+      isolate_col = "isolate",
+      fct = drc::LL.3()
+    ),
+    "one response and one predictor"
+  )
+})
+
+test_that("estimate_EC50 preserves structure when all groups fail", {
+  data(multi_isolate)
+  bad_data <- subset(
+    multi_isolate,
+    isolate == 1 & field == "Organic" & fungicida == "Fungicide A"
+  )[1, , drop = FALSE]
+
+  expect_silent(
+    fit <- estimate_EC50(
+      growth ~ dose,
+      data = bad_data,
+      isolate_col = "isolate",
+      strata_col = "field",
+      fct = drc::LL.3(),
+      quiet = TRUE
+    )
+  )
+
+  estimates <- ec50_estimates(fit)
+
+  expect_s3_class(fit, "ec50_estimate")
+  expect_named(estimates, c("ID", "field", "Estimate", "Std..Error"))
+  expect_equal(nrow(estimates), 0)
+  expect_equal(nrow(fit_failures(fit)), 1)
 })
 
 test_that("estimate_EC50 supports absolute ED levels", {

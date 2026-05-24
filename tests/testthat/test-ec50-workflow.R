@@ -33,6 +33,32 @@ test_that("model_selection validates multimodel objects", {
   expect_error(best_model(fit), "ec50_multimodel")
 })
 
+test_that("model_selection preserves columns when all multimodel fits fail", {
+  data(multi_isolate)
+  bad_data <- subset(
+    multi_isolate,
+    isolate == 1 & field == "Organic" & fungicida == "Fungicide A"
+  )[1, , drop = FALSE]
+
+  expect_silent(
+    fit <- ec50_multimodel(
+      growth ~ dose,
+      data = bad_data,
+      isolate_col = "isolate",
+      strata_col = "field",
+      fct = list(drc::LL.3(), drc::LL.4()),
+      quiet = TRUE
+    )
+  )
+
+  selection <- model_selection(fit)
+  best <- best_model(fit)
+
+  expect_equal(nrow(selection), 0)
+  expect_true(all(c("ID", "field", "model", "IC", "delta", "weight", "rank") %in% names(selection)))
+  expect_named(best, names(selection))
+})
+
 test_that("fit_quality and fit_failures expose successful and failed fits", {
   data(multi_isolate)
   good_data <- subset(
@@ -140,6 +166,58 @@ test_that("check_ec50_data flags common data problems", {
   expect_true(any(checks$nonpositive_dose > 0))
   expect_true(any(checks$too_few_doses))
   expect_true(any(checks$no_response_variation))
+})
+
+test_that("check_ec50_data validates numeric response and dose columns", {
+  data(multi_isolate)
+  sample_data <- subset(multi_isolate, isolate == 1 & fungicida == "Fungicide A")
+  bad_dose <- sample_data
+  bad_dose$dose <- factor(bad_dose$dose)
+  bad_response <- sample_data
+  bad_response$growth <- as.character(bad_response$growth)
+
+  expect_error(
+    check_ec50_data(
+      bad_dose,
+      response = "growth",
+      dose = "dose",
+      isolate = "isolate"
+    ),
+    "numeric response and dose"
+  )
+  expect_error(
+    check_ec50_data(
+      bad_response,
+      response = "growth",
+      dose = "dose",
+      isolate = "isolate"
+    ),
+    "numeric response and dose"
+  )
+})
+
+test_that("check_ec50_data preserves columns for empty data", {
+  data(multi_isolate)
+  empty_data <- multi_isolate[0, ]
+
+  checks <- check_ec50_data(
+    empty_data,
+    response = "growth",
+    dose = "dose",
+    isolate = "isolate",
+    strata = "field"
+  )
+
+  expect_s3_class(checks, "data.frame")
+  expect_equal(nrow(checks), 0)
+  expect_named(
+    checks,
+    c(
+      "ID", "field", "n_obs", "n_doses", "missing_response",
+      "missing_dose", "nonpositive_dose", "duplicated_rows",
+      "no_response_variation", "too_few_observations", "too_few_doses"
+    )
+  )
 })
 
 test_that("residual_data and plot_residuals use stored models", {
