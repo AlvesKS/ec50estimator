@@ -9,10 +9,16 @@
   `curve_data()` helpers for working directly with fitted EC50 objects.
 * Added workflow helpers for model selection, fit quality, failed fits,
   prediction, reporting, data checks, and residual diagnostics.
+* Reorganized pkgdown and vignettes around the user workflow: check data, fit
+  models, diagnose fits, select models, plot curves, predict, and report.
+* Added a new getting-started vignette and rewrote the single-model and
+  multimodel vignettes to emphasize fit objects as the main interface.
+* Removed row-name warnings from `predict_ec50()` and `residual_data()`.
 * Modernized EC50 estimation internals with shared validation, clearer errors,
   and warnings for failed isolate-level fits.
 * Reduced imported dependencies to `drc`; `ggplot2` is imported for the exported
   plotting workflow.
+* Removed vignette-only dependencies on `cowplot` and `ggridges`.
 * Added support for `type = "relative"` and `type = "absolute"` in
   `estimate_EC50()`.
 * Added automated tests for grouped estimates, argument validation, absolute

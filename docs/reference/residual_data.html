@@ -20,7 +20,8 @@ models. `plot_residuals()` returns a `ggplot2` diagnostic plot."><meta property=
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/estimate_EC50.html">Estimate EC50 with one model</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/get-started.html">Get started with EC50 workflows</a></li>
+    <li><a class="dropdown-item" href="../articles/estimate_EC50.html">Fit one EC50 model</a></li>
     <li><a class="dropdown-item" href="../articles/ec50_multimodel.html">Compare EC50 models</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -84,7 +85,6 @@ dose.</p></dd>
 <span class="r-in"><span>  fct <span class="op">=</span> <span class="fu">drc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/drc/man/LL.3.html" class="external-link">LL.3</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">residual_data</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>row names were found from a short variable and have been discarded</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    ID model  dose    observed     fitted     residual</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1   1  LL.3 0e+00 20.20823987 19.9257473  0.282492586</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2   1  LL.3 1e-05 20.11682791 19.8633829  0.253445024</span>
@@ -122,7 +122,6 @@ dose.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 34  1  LL.3 1e-01  1.44357318  1.4846233 -0.041050130</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 35  1  LL.3 1e+00  0.08274680  0.2002329 -0.117486046</span>
 <span class="r-in"><span><span class="fu">plot_residuals</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>row names were found from a short variable and have been discarded</span>
 <span class="r-plt img"><img src="residual_data-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

@@ -10,41 +10,48 @@ navbar:
 
 reference:
   - title: Fit EC50 models
+    desc: Start here when you are ready to fit one model or compare candidate models.
     contents:
       - estimate_EC50
       - ec50_multimodel
-  - title: Select and diagnose models
+  - title: Check and diagnose
+    desc: Check data before fitting and inspect fit quality after fitting.
     contents:
-      - model_selection
-      - best_model
+      - check_ec50_data
       - fit_quality
       - fit_failures
       - residual_data
       - plot_residuals
+  - title: Select models
+    desc: Rank candidate models and keep the best-supported model per group.
+    contents:
+      - model_selection
+      - best_model
   - title: Predict and report
+    desc: Create predictions and manuscript-friendly EC50 tables.
     contents:
       - predict_ec50
       - report_ec50
   - title: Work with fitted objects
+    desc: Extract estimates, metadata, fitted models, and curve coordinates.
     contents:
       - curve_data
       - fitted_models
       - ec50_metadata
       - ec50_estimates
-  - title: Plot fitted curves
+  - title: Plot with ggplot2
+    desc: Draw raw observations and fitted dose-response curves.
     contents:
       - plot_EC50_curves
-  - title: Check data
-    contents:
-      - check_ec50_data
   - title: Data
     contents:
       - multi_isolate
 
 articles:
-  - title: Vignettes
+  - title: Learn the workflow
     navbar: ~
     contents:
+      - get-started
       - estimate_EC50
       - ec50_multimodel
 

@@ -1,0 +1,195 @@
+---
+title: "Get started with EC50 workflows"
+author: "Kaique S Alves"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 2
+vignette: >
+  %\VignetteIndexEntry{Get started with EC50 workflows}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Goal
+
+This article shows the recommended workflow for most users:
+
+1. Check the data before fitting.
+2. Fit candidate dose-response models.
+3. Inspect model quality and failed fits.
+4. Choose the best-supported model within each isolate and stratum.
+5. Plot fitted curves and export a reporting table.
+
+The package keeps the fitted result as a data frame, but it also stores the
+model metadata needed for plotting, prediction, diagnostics, and reporting.
+
+## Packages
+
+```{r message=FALSE, warning=FALSE}
+library(ec50estimator)
+library(drc)
+library(ggplot2)
+```
+
+## Example Data
+
+`multi_isolate` is a simulated mycelial-growth dataset with repeated dose
+measurements for fungal isolates. The examples use a small subset so the
+workflow is easy to inspect.
+
+```{r}
+data(multi_isolate)
+
+example_data <- subset(
+  multi_isolate,
+  isolate %in% 1:5 & fungicida == "Fungicide A"
+)
+
+head(example_data)
+```
+
+## Check the Data
+
+Run `check_ec50_data()` before fitting. It returns one row per isolate and
+stratum, with flags for common problems such as missing values, too few doses,
+nonpositive doses for log-scale plots, and response groups with no variation.
+
+```{r}
+data_check <- check_ec50_data(
+  example_data,
+  response = "growth",
+  dose = "dose",
+  isolate = "isolate",
+  strata = "field"
+)
+
+data_check
+```
+
+Nonpositive dose values are flagged because log-scaled curves cannot draw them.
+They can still be useful as untreated controls, but they are omitted from the
+log-scale prediction grid used by `plot_EC50_curves()`.
+
+## Fit Candidate Models
+
+Use `ec50_multimodel()` when you want to compare more than one `drc` model. The
+same model list is fitted within each isolate and field stratum.
+
+```{r}
+fit <- ec50_multimodel(
+  growth ~ dose,
+  data = example_data,
+  isolate_col = "isolate",
+  strata_col = "field",
+  fct = list(drc::LL.3(), drc::LL.4(), drc::W2.3()),
+  interval = "delta"
+)
+
+head(fit)
+```
+
+The returned object is data-frame-like for compatibility. It also stores the
+original formula, grouping columns, fitted models, and fit diagnostics.
+
+## Inspect Fit Quality
+
+Use `fit_quality()` to see whether each isolate/model combination had enough
+observations and dose levels. Use `fit_failures()` to get failed fits as data,
+instead of searching warning text.
+
+```{r}
+fit_quality(fit)
+
+fit_failures(fit)
+```
+
+## Select Models
+
+`model_selection()` ranks candidate models within each isolate and stratum.
+Lower information-criterion values are better. The `delta` column measures the
+difference from the best-supported model in that group, and `weight` gives the
+relative information-criterion weight.
+
+```{r}
+selection <- model_selection(fit)
+
+selection[, c("ID", "field", "model", "IC", "delta", "weight", "rank")]
+```
+
+Use `best_model()` when you want one selected model per isolate and stratum.
+
+```{r}
+best <- best_model(fit)
+
+best[, c("ID", "field", "model", "Estimate", "Lower", "Upper", "IC")]
+```
+
+## Plot Curves
+
+`plot_EC50_curves()` reads the fitted object directly. You do not need to repeat
+the formula, data, isolate column, strata column, or model functions.
+
+```{r fig.alt="Faceted dose-response plot showing raw observations and the best-supported fitted curve for each isolate and field."}
+plot_EC50_curves(fit, models = "best")
+```
+
+To compare all candidate curves, use the default `models = "all"`. Multiple
+models are drawn with different line types.
+
+```{r fig.alt="Faceted dose-response plot showing raw observations and all candidate fitted curves for each isolate and field."}
+plot_EC50_curves(fit)
+```
+
+## Report and Reuse Results
+
+Use `report_ec50()` for a plain data frame that is easy to export to a
+spreadsheet or use in a manuscript table.
+
+```{r}
+report <- report_ec50(fit, models = "best")
+
+report
+```
+
+Use `predict_ec50()` to predict response at doses chosen by the user.
+
+```{r}
+predict_ec50(
+  fit,
+  dose = c(0.001, 0.01, 0.1),
+  models = "best"
+)
+```
+
+Use `curve_data()` when you want to build your own `ggplot2` figure from the
+stored fitted curves.
+
+```{r}
+curves <- curve_data(fit)
+
+head(curves)
+```
+
+```{r fig.alt="Custom ggplot2 dose-response curve figure built from curve_data output."}
+ggplot(curves, aes(dose, growth, color = factor(isolate), linetype = model)) +
+  geom_line(linewidth = 1) +
+  facet_wrap(~field) +
+  scale_x_log10() +
+  labs(x = "Dose", y = "Growth", color = "Isolate") +
+  theme_light()
+```
+
+## Diagnose Residuals
+
+Residual plots help identify groups where the fitted curve may not describe the
+observed responses well.
+
+```{r}
+head(residual_data(fit, models = "best"))
+```
+
+```{r fig.alt="Residual diagnostic plot for best-supported EC50 models."}
+plot_residuals(fit, models = "best")
+```

@@ -18,7 +18,8 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/estimate_EC50.html">Estimate EC50 with one model</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/get-started.html">Get started with EC50 workflows</a></li>
+    <li><a class="dropdown-item" href="../articles/estimate_EC50.html">Fit one EC50 model</a></li>
     <li><a class="dropdown-item" href="../articles/ec50_multimodel.html">Compare EC50 models</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -38,7 +39,7 @@
     <div class="section level2">
       <h2 id="fit-ec-models">Fit EC50 models<a class="anchor" aria-label="anchor" href="#fit-ec-models"></a></h2>
 
-
+      <div class="section-desc"><p>Start here when you are ready to fit one model or compare candidate models.</p></div>
 
 
     </div><div class="section level2">
@@ -53,9 +54,9 @@
         </dt>
         <dd>Estimate effective doses for grouped dose-response data</dd>
       </dl></div><div class="section level2">
-      <h2 id="select-and-diagnose-models">Select and diagnose models<a class="anchor" aria-label="anchor" href="#select-and-diagnose-models"></a></h2>
+      <h2 id="check-and-diagnose">Check and diagnose<a class="anchor" aria-label="anchor" href="#check-and-diagnose"></a></h2>
 
-
+      <div class="section-desc"><p>Check data before fitting and inspect fit quality after fitting.</p></div>
 
 
     </div><div class="section level2">
@@ -65,10 +66,10 @@
 
       <dl><dt>
 
-          <code><a href="model_selection.html">model_selection()</a></code> <code><a href="model_selection.html">best_model()</a></code>
+          <code><a href="check_ec50_data.html">check_ec50_data()</a></code>
 
         </dt>
-        <dd>Select EC50 candidate models</dd>
+        <dd>Check dose-response data before EC50 fitting</dd>
       </dl><dl><dt>
 
           <code><a href="fit_quality.html">fit_quality()</a></code> <code><a href="fit_quality.html">fit_failures()</a></code>
@@ -82,9 +83,26 @@
         </dt>
         <dd>Extract and plot EC50 residual diagnostics</dd>
       </dl></div><div class="section level2">
+      <h2 id="select-models">Select models<a class="anchor" aria-label="anchor" href="#select-models"></a></h2>
+
+      <div class="section-desc"><p>Rank candidate models and keep the best-supported model per group.</p></div>
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="model_selection.html">model_selection()</a></code> <code><a href="model_selection.html">best_model()</a></code>
+
+        </dt>
+        <dd>Select EC50 candidate models</dd>
+      </dl></div><div class="section level2">
       <h2 id="predict-and-report">Predict and report<a class="anchor" aria-label="anchor" href="#predict-and-report"></a></h2>
 
-
+      <div class="section-desc"><p>Create predictions and manuscript-friendly EC50 tables.</p></div>
 
 
     </div><div class="section level2">
@@ -107,7 +125,7 @@
       </dl></div><div class="section level2">
       <h2 id="work-with-fitted-objects">Work with fitted objects<a class="anchor" aria-label="anchor" href="#work-with-fitted-objects"></a></h2>
 
-
+      <div class="section-desc"><p>Extract estimates, metadata, fitted models, and curve coordinates.</p></div>
 
 
     </div><div class="section level2">
@@ -122,9 +140,9 @@
         </dt>
         <dd>Extract information from fitted EC50 objects</dd>
       </dl></div><div class="section level2">
-      <h2 id="plot-fitted-curves">Plot fitted curves<a class="anchor" aria-label="anchor" href="#plot-fitted-curves"></a></h2>
+      <h2 id="plot-with-ggplot-">Plot with ggplot2<a class="anchor" aria-label="anchor" href="#plot-with-ggplot-"></a></h2>
 
-
+      <div class="section-desc"><p>Draw raw observations and fitted dose-response curves.</p></div>
 
 
     </div><div class="section level2">
@@ -138,23 +156,6 @@
 
         </dt>
         <dd>Plot fitted dose-response curves for multiple isolates</dd>
-      </dl></div><div class="section level2">
-      <h2 id="check-data">Check data<a class="anchor" aria-label="anchor" href="#check-data"></a></h2>
-
-
-
-
-    </div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="check_ec50_data.html">check_ec50_data()</a></code>
-
-        </dt>
-        <dd>Check dose-response data before EC50 fitting</dd>
       </dl></div><div class="section level2">
       <h2 id="data">Data<a class="anchor" aria-label="anchor" href="#data"></a></h2>
 

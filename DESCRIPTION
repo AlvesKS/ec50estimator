@@ -11,11 +11,12 @@ Authors@R: c(
            comment = c(ORCID = "0000-0001-9187-0252")
            )) 
 Maintainer: Kaique dos S. Alves <kaiquedsalves@gmail.com>
-Description: An implementation for estimating Effective control to 50% of growth
-    inhibition (EC50) for multi isolates and stratified datasets. It implements 
-    functions from the drc package in a way that is displayed a tidy data.frame 
-    as output. Info about the drc package is available in Ritz C, Baty F, Streibig JC,
-    Gerhard D (2015) <doi:10.1371/journal.pone.0146021>.
+Description: Estimates effective concentrations that reduce growth by 50 percent
+    (EC50) in multi-isolate and stratified dose-response experiments. The package
+    wraps model fitting from drc, returns data-frame outputs, and provides helper
+    functions for data checks, model selection, fitted-curve plotting, prediction,
+    diagnostics, and reporting. Information about drc is available in Ritz C,
+    Baty F, Streibig JC, Gerhard D (2015) <doi:10.1371/journal.pone.0146021>.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -23,7 +24,7 @@ Depends: R (>= 3.5.0)
 Imports: drc, ggplot2
 RoxygenNote: 7.3.2
 VignetteBuilder: knitr
-Suggests: knitr, rmarkdown, ggridges, cowplot, testthat (>= 3.0.0)
+Suggests: knitr, rmarkdown, testthat (>= 3.0.0)
 Config/testthat/edition: 3
 URL: https://alvesks.github.io/ec50estimator/, https://github.com/AlvesKS/ec50estimator
 BugReports: https://github.com/AlvesKS/ec50estimator/issues

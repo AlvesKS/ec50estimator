@@ -17,8 +17,8 @@
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="An Automated Way to Estimate EC50 for Stratified Datasets">
-<meta name="description" content="An implementation for estimating Effective control to 50% of growth inhibition (EC50) for multi isolates and stratified datasets. It implements functions from the drc package in a way that is displayed a tidy data.frame as output. Info about the drc package is available in Ritz C, Baty F, Streibig JC, Gerhard D (2015) &lt;doi:10.1371/journal.pone.0146021&gt;.">
-<meta property="og:description" content="An implementation for estimating Effective control to 50% of growth inhibition (EC50) for multi isolates and stratified datasets. It implements functions from the drc package in a way that is displayed a tidy data.frame as output. Info about the drc package is available in Ritz C, Baty F, Streibig JC, Gerhard D (2015) &lt;doi:10.1371/journal.pone.0146021&gt;.">
+<meta name="description" content="Estimates effective concentrations that reduce growth by 50 percent (EC50) in multi-isolate and stratified dose-response experiments. The package wraps model fitting from drc, returns data-frame outputs, and provides helper functions for data checks, model selection, fitted-curve plotting, prediction, diagnostics, and reporting. Information about drc is available in Ritz C, Baty F, Streibig JC, Gerhard D (2015) &lt;doi:10.1371/journal.pone.0146021&gt;.">
+<meta property="og:description" content="Estimates effective concentrations that reduce growth by 50 percent (EC50) in multi-isolate and stratified dose-response experiments. The package wraps model fitting from drc, returns data-frame outputs, and provides helper functions for data checks, model selection, fitted-curve plotting, prediction, diagnostics, and reporting. Information about drc is available in Ritz C, Baty F, Streibig JC, Gerhard D (2015) &lt;doi:10.1371/journal.pone.0146021&gt;.">
 <meta property="og:image" content="https://alvesks.github.io/ec50estimator/logo.png">
 </head>
 <body>
@@ -42,7 +42,8 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/estimate_EC50.html">Estimate EC50 with one model</a></li>
+<li><a class="dropdown-item" href="articles/get-started.html">Get started with EC50 workflows</a></li>
+    <li><a class="dropdown-item" href="articles/estimate_EC50.html">Fit one EC50 model</a></li>
     <li><a class="dropdown-item" href="articles/ec50_multimodel.html">Compare EC50 models</a></li>
   </ul>
 </li>
@@ -63,44 +64,70 @@
   <main id="main" class="col-md-9">
 <div class="section level1">
 <div class="page-header">
-<img src="logo.png" class="logo" alt=""><h1 id="ec50estimator-an-easy-way-to-estimate-ec50-for-multi-isolate-datasets-">
-<em>ec50estimator</em>: an easy way to estimate EC<sub>50</sub> for multi-isolate datasets <a class="anchor" aria-label="anchor" href="#ec50estimator-an-easy-way-to-estimate-ec50-for-multi-isolate-datasets-"></a>
+<img src="logo.png" class="logo" alt=""><h1 id="ec50estimator-ec50-workflows-for-multi-isolate-dose-response-experiments-">ec50estimator: EC50 workflows for multi-isolate dose-response experiments <a class="anchor" aria-label="anchor" href="#ec50estimator-ec50-workflows-for-multi-isolate-dose-response-experiments-"></a>
 </h1>
 </div>
-</div>
-<div class="section level1">
-<h1 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
-</h1>
-<p><em>ec50estimator</em> provides a quick, automated way to estimate the effective concentration that reduces growth by 50% (EC<sub>50</sub>) from multi-isolate dose-response datasets. It is designed for scientists who need a simple workflow for grouped or stratified experiments while still using the modelling engine from <code>drc</code>.</p>
-<p>The package now keeps runtime dependencies intentionally small: <code>drc</code> is the only imported package.</p>
+<p><code>ec50estimator</code> helps scientists estimate EC50 from grouped dose-response datasets. It wraps the modelling engine from <code>drc</code> in a workflow that is easier to use for experiments with many isolates, fields, fungicides, years, or other strata.</p>
+<p>The package is built around one practical sequence:</p>
+<ol style="list-style-type: decimal">
+<li>Check whether the dose-response data are fit-ready.</li>
+<li>Fit one model or compare several candidate models.</li>
+<li>Inspect fit quality and failed fits.</li>
+<li>Plot fitted curves with <code>ggplot2</code>.</li>
+<li>Extract predictions, curve coordinates, and manuscript-ready EC50 tables.</li>
+</ol>
 <div class="section level2">
-<h2 id="download-and-install">Download and install<a class="anchor" aria-label="anchor" href="#download-and-install"></a>
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <p>Install the stable release from CRAN.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"ec50estimator"</span><span class="op">)</span></span></code></pre></div>
-<p>A development version can be download using the following code:</p>
+<p>Install the development version from GitHub.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"AlvesKS/ec50estimator"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="quick-example">Quick example<a class="anchor" aria-label="anchor" href="#quick-example"></a>
+<h2 id="quick-start">Quick Start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h2>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://alvesks.github.io/ec50estimator/">ec50estimator</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://www.r-project.org" class="external-link">drc</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">multi_isolate</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">ec50</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/estimate_EC50.html">estimate_EC50</a></span><span class="op">(</span></span>
+<span><span class="va">example_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span></span>
+<span>  <span class="va">multi_isolate</span>,</span>
+<span>  <span class="va">isolate</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span> <span class="op">&amp;</span> <span class="va">fungicida</span> <span class="op">==</span> <span class="st">"Fungicide A"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/check_ec50_data.html">check_ec50_data</a></span><span class="op">(</span></span>
+<span>  <span class="va">example_data</span>,</span>
+<span>  response <span class="op">=</span> <span class="st">"growth"</span>,</span>
+<span>  dose <span class="op">=</span> <span class="st">"dose"</span>,</span>
+<span>  isolate <span class="op">=</span> <span class="st">"isolate"</span>,</span>
+<span>  strata <span class="op">=</span> <span class="st">"field"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/estimate_EC50.html">ec50_multimodel</a></span><span class="op">(</span></span>
 <span>  <span class="va">growth</span> <span class="op">~</span> <span class="va">dose</span>,</span>
-<span>  data <span class="op">=</span> <span class="va">multi_isolate</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">example_data</span>,</span>
 <span>  isolate_col <span class="op">=</span> <span class="st">"isolate"</span>,</span>
-<span>  strata_col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"field"</span>, <span class="st">"fungicida"</span><span class="op">)</span>,</span>
-<span>  fct <span class="op">=</span> <span class="fu">drc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/drc/man/LL.3.html" class="external-link">LL.3</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  strata_col <span class="op">=</span> <span class="st">"field"</span>,</span>
+<span>  fct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu">drc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/drc/man/LL.3.html" class="external-link">LL.3</a></span><span class="op">(</span><span class="op">)</span>, <span class="fu">drc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/drc/man/LL.4.html" class="external-link">LL.4</a></span><span class="op">(</span><span class="op">)</span>, <span class="fu">drc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/drc/man/W3.html" class="external-link">W2.3</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  interval <span class="op">=</span> <span class="st">"delta"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ec50</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="reference/model_selection.html">best_model</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/plot_EC50_curves.html">plot_EC50_curves</a></span><span class="op">(</span><span class="va">fit</span>, models <span class="op">=</span> <span class="st">"best"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/report_ec50.html">report_ec50</a></span><span class="op">(</span><span class="va">fit</span>, models <span class="op">=</span> <span class="st">"best"</span><span class="op">)</span></span></code></pre></div>
+<p><code>fit</code> is still a data frame, so existing workflows that call <code>head(fit)</code> or write the estimates to a file continue to work. It also stores the fitted <code>drc</code> models and metadata needed by helper functions:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/ec50_extractors.html">curve_data</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/ec50_extractors.html">fitted_models</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/ec50_extractors.html">ec50_metadata</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/predict_ec50.html">predict_ec50</a></span><span class="op">(</span><span class="va">fit</span>, dose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.001</span>, <span class="fl">0.01</span>, <span class="fl">0.1</span><span class="op">)</span>, models <span class="op">=</span> <span class="st">"best"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/residual_data.html">plot_residuals</a></span><span class="op">(</span><span class="va">fit</span>, models <span class="op">=</span> <span class="st">"best"</span><span class="op">)</span></span></code></pre></div>
+<p>See the pkgdown site for the recommended workflow: <a href="https://alvesks.github.io/ec50estimator/" class="uri">https://alvesks.github.io/ec50estimator/</a>.</p>
 </div>
 </div>
 

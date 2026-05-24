@@ -1,5 +1,5 @@
 ---
-title: "Estimate EC50 with one model"
+title: "Fit one EC50 model"
 author: "Kaique S Alves"
 date: "`r Sys.Date()`"
 output:
@@ -7,170 +7,164 @@ output:
     toc: true
     toc_depth: 2
 vignette: >
-  %\VignetteIndexEntry{Estimate EC50 with one model}
+  %\VignetteIndexEntry{Fit one EC50 model}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-## Introduction
+## When to Use This Workflow
 
-Use `estimate_EC50()` when you already know which dose-response model should be fitted to each isolate. The function runs the same `drc` model across isolates and optional strata, then returns an EC50 fit object that behaves like a data frame and also stores the information needed for plotting and prediction.
+Use `estimate_EC50()` when the dose-response model is already chosen and should
+be fitted to every isolate or isolate-by-stratum group. This is common when a
+protocol, previous experiment, or study design already identifies the model that
+should be used for final EC50 estimation.
 
-## Packages
+If you still need to compare candidate models, start with
+`ec50_multimodel()` instead.
+
+## Packages and Data
 
 ```{r message=FALSE, warning=FALSE}
 library(ec50estimator)
 library(drc)
 library(ggplot2)
-library(cowplot)
-library(ggridges)
 ```
-
-## Data
-
-The package includes `multi_isolate`, a simulated dataset of mycelial growth under increasing fungicide doses for 50 fungal isolates, two field systems, and two fungicides.
 
 ```{r}
 data(multi_isolate)
-head(multi_isolate)
+
+example_data <- subset(
+  multi_isolate,
+  isolate %in% 1:6 & fungicida == "Fungicide A"
+)
+
+head(example_data)
 ```
 
-Run a quick check before fitting to identify common data issues within each isolate and stratum.
+## Check Fit Readiness
+
+Before fitting, check whether each isolate and field has enough observations,
+enough dose levels, and measurable response variation.
 
 ```{r}
-head(check_ec50_data(
-  multi_isolate,
+check_ec50_data(
+  example_data,
   response = "growth",
   dose = "dose",
   isolate = "isolate",
-  strata = c("field", "fungicida")
-))
+  strata = "field"
+)
 ```
 
-Inspect the raw dose-response data before fitting models.
+## Fit the Model
 
-```{r fig.alt="Jitter plot of mycelial growth by fungicide dose, faceted by field system and fungicide."}
-ggplot(multi_isolate, aes(dose, growth, color = growth)) +
-  geom_jitter(width = 0.1) +
-  facet_grid(field ~ fungicida) +
-  scale_x_log10() +
-  scale_color_viridis_c(option = "B", direction = 1) +
-  theme_light()
-```
-
-## Estimate EC50
-
-`estimate_EC50()` needs the same model ingredients you would pass to `drc::drm()`: a formula, a data frame, and a model function such as `drc::LL.3()`. Use `isolate_col` to identify isolates and `strata_col` for grouping columns such as field, fungicide, year, or location.
+`estimate_EC50()` takes a `drc` model function through `fct`. The example below
+fits a three-parameter log-logistic model within each isolate and field.
 
 ```{r}
 fit <- estimate_EC50(
   growth ~ dose,
-  data = multi_isolate,
+  data = example_data,
   isolate_col = "isolate",
-  strata_col = c("field", "fungicida"),
-  interval = "delta",
-  fct = drc::LL.3()
+  strata_col = "field",
+  fct = drc::LL.3(),
+  interval = "delta"
 )
 
 head(fit)
 ```
 
-The result keeps the isolate identifier in `ID`, then returns the strata columns and the effective-dose estimate columns from `drc::ED()`.
-
-## Extract Fit Information
-
-Use the extractor helpers when you want a specific part of the fitted object. `ec50_estimates()` returns a plain data frame, while `ec50_metadata()` summarizes the model setup that is stored with the fit.
+The object behaves like a data frame. The first columns identify the isolate
+and strata. The remaining columns contain the EC50 estimate and uncertainty
+columns returned by `drc::ED()`.
 
 ```{r}
-df_ec50 <- ec50_estimates(fit)
-head(df_ec50)
-
-ec50_metadata(fit)
+ec50_estimates(fit)
 ```
 
-Use `fit_quality()` and `fit_failures()` to inspect which groups fitted successfully and whether any groups failed.
+## Review the Fit Object
+
+Use metadata and quality helpers to understand what was fitted.
 
 ```{r}
-head(fit_quality(fit))
+ec50_metadata(fit)
+
+fit_quality(fit)
 
 fit_failures(fit)
 ```
 
-The fitted curve coordinates are also available without rebuilding the model. This is useful when you want to make a custom `ggplot2` figure.
-
-```{r}
-curves <- curve_data(fit)
-head(curves)
-```
-
-The stored `drc` model objects are available for advanced diagnostics.
+For advanced users, `fitted_models()` returns the stored `drc` model objects.
+Most users can stay with the higher-level helpers.
 
 ```{r}
 models <- fitted_models(fit)
+
 length(models)
 names(models)[1:3]
 ```
 
-## Plot Fitted Curves
+## Plot the Fitted Curves
 
-Use `plot_EC50_curves()` directly on the fitted object. The function reads the formula, original data, groups, and stored fitted models from `fit`.
+Pass the fitted object directly to `plot_EC50_curves()`. The function uses the
+stored formula, data, grouping columns, and fitted models.
 
-```{r fig.alt="Faceted dose-response plot with raw observations and fitted EC50 curves for each isolate."}
+```{r fig.alt="Faceted dose-response plot with raw observations and one fitted EC50 curve for each isolate and field."}
 plot_EC50_curves(fit)
 ```
 
-You can also predict responses at specific doses and create a plain reporting table.
+If your experiment has more than one stratum, the first stratum is used as
+columns and the second as rows by default. You can override the layout with
+`facet_col` and `facet_row`.
+
+## Predict and Report
+
+Use `predict_ec50()` to predict the response at doses chosen by the user.
 
 ```{r}
-head(predict_ec50(fit, dose = c(0.001, 0.01, 0.1)))
-
-report <- report_ec50(fit)
-head(report)
+predict_ec50(
+  fit,
+  dose = c(0.001, 0.01, 0.1)
+)
 ```
 
-Residual diagnostics are available as data and as `ggplot2` figures.
+Use `report_ec50()` when you want a plain table for export or manuscript work.
+
+```{r}
+report_ec50(fit)
+```
+
+## Build a Custom Figure
+
+`curve_data()` returns the coordinates used to draw the fitted curves. This is
+useful when you want full control over a `ggplot2` figure.
+
+```{r}
+curves <- curve_data(fit)
+
+head(curves)
+```
+
+```{r fig.alt="Custom EC50 estimate plot showing EC50 estimates and confidence intervals by isolate and field."}
+estimates <- ec50_estimates(fit)
+estimates$ID <- factor(estimates$ID, levels = sort(unique(estimates$ID)))
+
+ggplot(estimates, aes(ID, Estimate, color = field)) +
+  geom_point(size = 2) +
+  geom_errorbar(aes(ymin = Lower, ymax = Upper), width = 0.15) +
+  scale_y_log10() +
+  labs(x = "Isolate", y = "EC50", color = "Field") +
+  theme_light()
+```
+
+## Check Residuals
+
+Residual diagnostics are available as data and as a `ggplot2` figure.
 
 ```{r}
 head(residual_data(fit))
 ```
 
-```{r fig.alt="Residual diagnostic plot for EC50 fits, with residuals plotted against fitted values."}
+```{r fig.alt="Residual diagnostic plot with residuals against fitted values for EC50 models."}
 plot_residuals(fit)
-```
-
-## Visualize Results
-
-Plot EC50 estimates and confidence intervals for all isolates.
-
-```{r fig.height=10, fig.width=6, fig.alt="Point and interval plot of EC50 estimates for isolates, grouped by field system and fungicide."}
-plot_ec50 <- df_ec50
-plot_ec50$ID <- as.numeric(plot_ec50$ID)
-
-ggplot(plot_ec50, aes(ID, Estimate, color = field)) +
-  geom_point(size = 2) +
-  geom_errorbar(aes(ymin = Lower, ymax = Upper, color = field), width = 0) +
-  facet_wrap(~fungicida, scales = "free_x", ncol = 2) +
-  scale_y_log10() +
-  scale_x_continuous(breaks = 1:50) +
-  scale_color_manual(values = c("darkred", "steelblue")) +
-  labs(x = "Isolates", y = "EC50") +
-  theme_minimal_vgrid(font_size = 10) +
-  coord_flip() +
-  theme(
-    axis.text.x = element_text(size = 10),
-    legend.position = "bottom"
-  )
-```
-
-Density plots can help compare EC50 distributions between strata.
-
-```{r fig.alt="Density ridge plot comparing EC50 distributions between field systems for each fungicide."}
-ggplot(df_ec50, aes(Estimate, field, fill = after_stat(x))) +
-  geom_density_ridges_gradient(alpha = 0.3) +
-  scale_x_log10() +
-  scale_fill_viridis_c(option = "C") +
-  facet_wrap(~fungicida, nrow = 2) +
-  theme_minimal_hgrid() +
-  labs(x = "EC50", y = "Field") +
-  theme(legend.position = "none")
 ```

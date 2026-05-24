@@ -12,21 +12,20 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-## Introduction
+## When to Use This Workflow
 
-Use `ec50_multimodel()` when you want to fit more than one candidate `drc` model to the same isolates and strata. This is useful during model selection, when you need EC estimates, model-selection statistics, fitted curves, and stored model objects from the same workflow.
+Use `ec50_multimodel()` when you need to compare candidate dose-response models
+before reporting EC50 estimates. The function fits each model within each
+isolate and stratum, stores the fitted `drc` objects, and returns a data frame
+with EC50 estimates plus model-selection statistics.
 
-## Packages
+## Packages and Data
 
 ```{r message=FALSE, warning=FALSE}
 library(ec50estimator)
 library(drc)
 library(ggplot2)
 ```
-
-## Data
-
-The examples use a small subset of `multi_isolate` so the vignette runs quickly while still showing the grouped workflow.
 
 ```{r}
 data(multi_isolate)
@@ -39,22 +38,16 @@ example_data <- subset(
 head(example_data)
 ```
 
-Run a quick data check before fitting. This helps identify sparse groups, missing values, nonpositive doses for log-scale workflows, and groups with too little response variation.
+## Inspect the Raw Pattern
 
-```{r}
-head(check_ec50_data(
-  example_data,
-  response = "growth",
-  dose = "dose",
-  isolate = "isolate",
-  strata = "field"
-))
-```
+Repeated observations at the same dose should be shown as points, not connected
+with lines. Lines are reserved for fitted model curves. The exploratory plot
+below uses positive doses because the x-axis is log-scaled.
 
-Inspect the raw dose-response observations before comparing models. Because each isolate can have repeated observations at the same dose, this plot uses jittered points instead of connecting observations with lines.
+```{r fig.alt="Jittered raw dose-response observations for five isolates, faceted by field system."}
+raw_plot_data <- subset(example_data, dose > 0)
 
-```{r fig.alt="Jittered dose-response scatter plot for five isolates exposed to Fungicide A, faceted by field system."}
-ggplot(example_data, aes(dose, growth, color = factor(isolate))) +
+ggplot(raw_plot_data, aes(dose, growth, color = factor(isolate))) +
   geom_jitter(width = 0.08, height = 0, alpha = 0.85, size = 2) +
   facet_wrap(~field) +
   scale_x_log10() +
@@ -62,9 +55,26 @@ ggplot(example_data, aes(dose, growth, color = factor(isolate))) +
   theme_light()
 ```
 
-## Compare Models
+## Check the Data
 
-Pass a list of candidate model functions to `fct`. The function fits each model for each isolate and stratum, then appends model-selection statistics returned by `drc::mselect()`.
+Use `check_ec50_data()` before model fitting. The returned flags help separate
+data problems from model-fitting problems.
+
+```{r}
+check_ec50_data(
+  example_data,
+  response = "growth",
+  dose = "dose",
+  isolate = "isolate",
+  strata = "field"
+)
+```
+
+## Fit Candidate Models
+
+Pass a named or unnamed list of `drc` model functions to `fct`. The fitted object
+keeps the EC50 estimates as rows and stores the fitted models for downstream
+helpers.
 
 ```{r}
 fit <- ec50_multimodel(
@@ -76,102 +86,72 @@ fit <- ec50_multimodel(
   interval = "delta"
 )
 
-df_models <- ec50_estimates(fit)
-head(df_models)
+head(ec50_estimates(fit))
 ```
 
-The `model` column identifies the candidate model. The `IC` column is the information criterion reported by `drc::mselect()` for the fitted model.
+## Diagnose Fits
 
-The fitted object also stores metadata, fit-quality information, failed fits, and the underlying fitted `drc` models.
+`fit_quality()` summarizes successful model fits. `fit_failures()` returns
+failed group/model combinations as data.
 
 ```{r}
-ec50_metadata(fit)
-
-head(fit_quality(fit))
+fit_quality(fit)
 
 fit_failures(fit)
-
-models <- fitted_models(fit)
-length(models)
-names(models)[1:4]
 ```
 
-## Pick Candidate Models
+## Rank Candidate Models
 
-You can rank candidate models within each isolate and stratum using base R. Lower `IC` values indicate stronger relative support among the compared models.
-
-```{r}
-ranked_models <- df_models[order(df_models$field, df_models$ID, df_models$IC), ]
-best_models <- ranked_models[!duplicated(ranked_models[c("field", "ID")]), ]
-
-best_models[, c("ID", "field", "model", "Estimate", "Std..Error", "IC")]
-```
-
-The same ranking is available through `model_selection()`, which adds delta information-criterion values, model weights, and ranks. Use `best_model()` to keep only the best-supported model per isolate and stratum.
+`model_selection()` ranks models inside each isolate and field. The default
+criterion is `IC`, which is returned by `ec50_multimodel()`. Smaller values are
+better.
 
 ```{r}
 selection <- model_selection(fit)
-head(selection[, c("ID", "field", "model", "IC", "delta", "weight", "rank")])
 
-best_model(fit)[, c("ID", "field", "model", "Estimate", "IC", "delta", "weight")]
+selection[, c("ID", "field", "model", "IC", "delta", "weight", "rank")]
 ```
 
-## Visualize Model Comparison
+`best_model()` keeps the top-ranked model in each group.
 
-Plot the information criterion across isolates to see whether one model is consistently preferred.
+```{r}
+best <- best_model(fit)
 
-```{r fig.alt="Point plot of information criterion values by isolate for each candidate model and field system."}
-plot_models <- df_models
-plot_models$ID <- as.numeric(plot_models$ID)
-
-ggplot(plot_models, aes(ID, IC, color = model)) +
-  geom_point(position = position_dodge(width = 0.35), size = 2) +
-  facet_wrap(~field) +
-  scale_x_continuous(breaks = sort(unique(plot_models$ID))) +
-  labs(x = "Isolate", y = "Information criterion") +
-  theme_light()
+best[, c("ID", "field", "model", "Estimate", "Lower", "Upper", "IC")]
 ```
 
-After choosing an appropriate model, use `estimate_EC50()` for the final estimation workflow if a single model should be applied across the full dataset.
+Model weights are relative to the candidate set supplied by the user. They are
+useful for ranking fitted models, but they do not prove that a model is
+biologically correct.
 
-## Plot Fitted Curves
+## Plot All Models or Best Models
 
-Use `plot_EC50_curves()` to visualize raw observations and fitted dose-response curves in the same graph. The function uses the `ec50_multimodel()` output directly, so you do not need to repeat the formula, data, grouping columns, or model functions.
+Use `plot_EC50_curves()` directly on the fitted object. With multiple models,
+line type identifies the model.
 
-```{r fig.alt="Faceted dose-response plot with raw points and one fitted curve per isolate and field system."}
-single_fit <- estimate_EC50(
-  growth ~ dose,
-  data = example_data,
-  isolate_col = "isolate",
-  strata_col = "field",
-  fct = drc::LL.3()
-)
-
-plot_EC50_curves(single_fit)
-```
-
-When several candidate models are supplied, all fitted curves are drawn and the model is mapped to line type.
-
-```{r fig.alt="Faceted dose-response plot with raw points and multiple fitted model curves per isolate and field system."}
+```{r fig.alt="Faceted dose-response plot with raw observations and all candidate fitted curves for each isolate and field."}
 plot_EC50_curves(fit)
 ```
 
-To show only the best-supported curve per isolate and stratum, use `models = "best"`.
+For a cleaner reporting figure, plot only the best-supported model in each
+isolate and stratum.
 
-```{r fig.alt="Faceted dose-response plot showing only the best-supported fitted model per isolate and field system."}
+```{r fig.alt="Faceted dose-response plot with raw observations and the best-supported fitted curve for each isolate and field."}
 plot_EC50_curves(fit, models = "best")
 ```
 
-## Custom Curve Data
+## Customize with Curve Data
 
-Use `curve_data()` when you want to build a custom `ggplot2` figure from the fitted curves.
+Use `curve_data()` when you want to build a custom `ggplot2` figure. This helper
+uses the stored models and does not refit them.
 
 ```{r}
 curves <- curve_data(fit)
+
 head(curves)
 ```
 
-```{r fig.alt="Custom ggplot2 dose-response curve figure using coordinates extracted from an ec50_multimodel fit."}
+```{r fig.alt="Custom ggplot2 curve plot built from fitted EC50 curve coordinates."}
 ggplot(curves, aes(dose, growth, color = factor(isolate), linetype = model)) +
   geom_line(linewidth = 1) +
   facet_wrap(~field) +
@@ -180,23 +160,31 @@ ggplot(curves, aes(dose, growth, color = factor(isolate), linetype = model)) +
   theme_light()
 ```
 
-## Predict, Report, and Diagnose
+## Predict and Report Selected Models
 
-Use `predict_ec50()` to predict responses at specific doses without refitting models. Use `report_ec50()` to create a plain data frame for final tables.
+Use `models = "best"` when you want predictions or tables from only the
+best-supported model in each group.
 
 ```{r}
-predict_ec50(fit, dose = c(0.001, 0.01, 0.1), models = "best")
-
-report <- report_ec50(fit, models = "best")
-head(report)
+predict_ec50(
+  fit,
+  dose = c(0.001, 0.01, 0.1),
+  models = "best"
+)
 ```
 
-Residual diagnostics help identify isolates or candidate models where the fitted curve may not describe the data well.
+```{r}
+report_ec50(fit, models = "best")
+```
+
+## Residual Diagnostics
+
+Residuals can be returned as data or plotted with `ggplot2`.
 
 ```{r}
 head(residual_data(fit, models = "best"))
 ```
 
-```{r fig.alt="Residual diagnostic plot for best-supported EC50 models, with residuals plotted against fitted values."}
+```{r fig.alt="Residual diagnostic plot for best-supported EC50 models."}
 plot_residuals(fit, models = "best")
 ```

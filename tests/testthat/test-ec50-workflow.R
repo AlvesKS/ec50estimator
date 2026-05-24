@@ -91,7 +91,7 @@ test_that("predict_ec50 predicts requested doses for selected models", {
     quiet = TRUE
   )
 
-  all_predictions <- predict_ec50(fit, dose = c(0.001, 0.01))
+  expect_no_warning(all_predictions <- predict_ec50(fit, dose = c(0.001, 0.01)))
   best_predictions <- predict_ec50(fit, dose = c(0.001, 0.01), models = "best")
   named_predictions <- predict_ec50(fit, dose = c(0.001, 0.01), models = "LL.3")
 
@@ -152,7 +152,7 @@ test_that("residual_data and plot_residuals use stored models", {
     quiet = TRUE
   )
 
-  residuals <- residual_data(fit)
+  expect_no_warning(residuals <- residual_data(fit))
   plot <- plot_residuals(fit)
   dose_plot <- plot_residuals(fit, type = "dose", models = "LL.3")
 

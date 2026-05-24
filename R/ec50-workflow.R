@@ -145,7 +145,7 @@ predict_ec50 <- function(x, dose, models = "all") {
     newdata <- data.frame(dose)
     names(newdata) <- vars$dose
     data.frame(
-      identifier_output(record$identifiers, attr(x, "ec50_isolate_col"), attr(x, "ec50_strata_col")),
+      repeated_identifier_output(x, record, nrow(newdata)),
       model = record$model,
       newdata,
       predicted = as.numeric(stats::predict(record$fit, newdata = newdata)),
@@ -307,7 +307,7 @@ residual_data <- function(x, models = "all") {
     fitted <- as.numeric(stats::predict(record$fit, newdata = newdata))
     observed <- group_data[[vars$response]]
     data.frame(
-      identifier_output(record$identifiers, attr(x, "ec50_isolate_col"), attr(x, "ec50_strata_col")),
+      repeated_identifier_output(x, record, nrow(group_data)),
       model = record$model,
       dose = group_data[[vars$dose]],
       observed = observed,
@@ -318,6 +318,17 @@ residual_data <- function(x, models = "all") {
   })
 
   reset_row_names(bind_rows(residuals))
+}
+
+repeated_identifier_output <- function(x, record, n) {
+  identifiers <- identifier_output(
+    record$identifiers,
+    attr(x, "ec50_isolate_col"),
+    attr(x, "ec50_strata_col")
+  )
+  identifiers <- identifiers[rep(1, n), , drop = FALSE]
+  row.names(identifiers) <- NULL
+  identifiers
 }
 
 #' @rdname residual_data
