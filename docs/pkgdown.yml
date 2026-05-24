@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   ec50_multimodel: ec50_multimodel.html
   estimate_EC50: estimate_EC50.html
-last_built: 2026-04-26T03:28Z
+last_built: 2026-05-24T05:49Z
 urls:
   reference: https://alvesks.github.io/ec50estimator/reference
   article: https://alvesks.github.io/ec50estimator/articles

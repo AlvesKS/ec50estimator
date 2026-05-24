@@ -2,3 +2,4 @@
 
 export(ec50_multimodel)
 export(estimate_EC50)
+export(plot_EC50_curves)

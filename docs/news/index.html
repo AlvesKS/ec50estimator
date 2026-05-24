@@ -38,7 +38,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.0.0" id="ec50estimator-100">ec50estimator 1.0.0<a class="anchor" aria-label="anchor" href="#ec50estimator-100"></a></h2>
-<ul><li>Modernized EC50 estimation internals with shared validation, clearer errors, and warnings for failed isolate-level fits.</li>
+<ul><li>Added <code><a href="../reference/plot_EC50_curves.html">plot_EC50_curves()</a></code> for plotting raw dose-response observations and fitted <code>drc</code> curves across isolates, strata, and one or more candidate models.</li>
+<li>Modernized EC50 estimation internals with shared validation, clearer errors, and warnings for failed isolate-level fits.</li>
 <li>Reduced imported dependencies to <code>drc</code>.</li>
 <li>Added support for <code>type = "relative"</code> and <code>type = "absolute"</code> in <code><a href="../reference/estimate_EC50.html">estimate_EC50()</a></code>.</li>
 <li>Added automated tests for grouped estimates, argument validation, absolute effective-dose levels, and multimodel output.</li>

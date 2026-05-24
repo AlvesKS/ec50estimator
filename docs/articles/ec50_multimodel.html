@@ -66,7 +66,7 @@
                         <h4 data-toc-skip class="author">Kaique S
 Alves</h4>
             
-            <h4 data-toc-skip class="date">2026-04-26</h4>
+            <h4 data-toc-skip class="date">2026-05-24</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/AlvesKS/ec50estimator/blob/HEAD/vignettes/ec50_multimodel.Rmd" class="external-link"><code>vignettes/ec50_multimodel.Rmd</code></a></small>
       <div class="d-none name"><code>ec50_multimodel.Rmd</code></div>
@@ -198,6 +198,34 @@ model is consistently preferred.</p>
 <p>After choosing an appropriate model, use <code><a href="../reference/estimate_EC50.html">estimate_EC50()</a></code>
 for the final estimation workflow if a single model should be applied
 across the full dataset.</p>
+</div>
+<div class="section level2">
+<h2 id="plot-fitted-curves">Plot Fitted Curves<a class="anchor" aria-label="anchor" href="#plot-fitted-curves"></a>
+</h2>
+<p>Use <code><a href="../reference/plot_EC50_curves.html">plot_EC50_curves()</a></code> to visualize raw observations and
+fitted dose-response curves in the same graph. The function uses the
+same grouping idea as <code><a href="../reference/estimate_EC50.html">estimate_EC50()</a></code> and
+<code><a href="../reference/estimate_EC50.html">ec50_multimodel()</a></code>.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_EC50_curves.html">plot_EC50_curves</a></span><span class="op">(</span></span>
+<span>  <span class="va">growth</span> <span class="op">~</span> <span class="va">dose</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">example_data</span>,</span>
+<span>  isolate_col <span class="op">=</span> <span class="st">"isolate"</span>,</span>
+<span>  strata_col <span class="op">=</span> <span class="st">"field"</span>,</span>
+<span>  fct <span class="op">=</span> <span class="fu">drc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/drc/man/LL.3.html" class="external-link">LL.3</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><img src="ec50_multimodel_files/figure-html/unnamed-chunk-7-1.png" alt="Faceted dose-response plot with raw points and one fitted curve per isolate and field system." width="700"></p>
+<p>When several candidate models are supplied, all fitted curves are
+drawn and the model is mapped to line type.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_EC50_curves.html">plot_EC50_curves</a></span><span class="op">(</span></span>
+<span>  <span class="va">growth</span> <span class="op">~</span> <span class="va">dose</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">example_data</span>,</span>
+<span>  isolate_col <span class="op">=</span> <span class="st">"isolate"</span>,</span>
+<span>  strata_col <span class="op">=</span> <span class="st">"field"</span>,</span>
+<span>  fct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu">drc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/drc/man/LL.3.html" class="external-link">LL.3</a></span><span class="op">(</span><span class="op">)</span>, <span class="fu">drc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/drc/man/LL.4.html" class="external-link">LL.4</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><img src="ec50_multimodel_files/figure-html/unnamed-chunk-8-1.png" alt="Faceted dose-response plot with raw points and multiple fitted model curves per isolate and field system." width="700"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

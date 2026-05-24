@@ -1,5 +1,7 @@
 # ec50estimator 1.0.0
 
+* Added `plot_EC50_curves()` for plotting raw dose-response observations and
+  fitted `drc` curves across isolates, strata, and one or more candidate models.
 * Modernized EC50 estimation internals with shared validation, clearer errors,
   and warnings for failed isolate-level fits.
 * Reduced imported dependencies to `drc`.

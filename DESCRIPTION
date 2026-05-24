@@ -20,10 +20,10 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Depends: R (>= 3.5.0)
-Imports: drc
+Imports: drc, ggplot2
 RoxygenNote: 7.3.2
 VignetteBuilder: knitr
-Suggests: knitr, rmarkdown, ggplot2, ggridges, cowplot, testthat (>= 3.0.0)
+Suggests: knitr, rmarkdown, ggridges, cowplot, testthat (>= 3.0.0)
 Config/testthat/edition: 3
 URL: https://alvesks.github.io/ec50estimator/, https://github.com/AlvesKS/ec50estimator
 BugReports: https://github.com/AlvesKS/ec50estimator/issues
