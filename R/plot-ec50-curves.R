@@ -81,7 +81,6 @@ plot_EC50_curves <- function(x,
     data <- attr(x, "ec50_data")
     isolate_col <- attr(x, "ec50_isolate_col")
     strata_col <- attr(x, "ec50_strata_col")
-    model_list <- normalize_model_list(attr(x, "ec50_fct"))
     fitted_models <- attr(x, "ec50_models")
   } else {
     formula <- x
@@ -120,17 +119,12 @@ plot_EC50_curves <- function(x,
   response_col <- vars$response
   dose_col <- vars$dose
   if (fit_input && length(fitted_models) > 0) {
-    prediction_data <- build_curve_predictions_from_fits(
-      formula = formula,
-      data = data,
-      isolate_col = isolate_col,
-      strata_col = strata_col,
-      plot_cols = unique(c(color_col, facet_col, facet_row)),
-      dose_col = dose_col,
-      fitted_models = fitted_models,
+    prediction_data <- curve_data_from_fit(
+      x = x,
       n_points = n_points,
       log_x = log_x,
-      quiet = quiet
+      quiet = quiet,
+      plot_cols = unique(c(color_col, facet_col, facet_row))
     )
   } else {
     prediction_data <- build_curve_predictions(

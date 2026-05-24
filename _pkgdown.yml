@@ -9,10 +9,18 @@ navbar:
     right: [search, github]
 
 reference:
-  - title: Estimate EC50
+  - title: Fit EC50 models
     contents:
       - estimate_EC50
       - ec50_multimodel
+  - title: Work with fitted objects
+    contents:
+      - curve_data
+      - fitted_models
+      - ec50_metadata
+      - ec50_estimates
+  - title: Plot fitted curves
+    contents:
       - plot_EC50_curves
   - title: Data
     contents:

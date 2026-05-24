@@ -39,10 +39,14 @@ test_that("plot_EC50_curves uses fitted package output without repeated inputs",
     quiet = TRUE
   )
   plot <- plot_EC50_curves(fit)
+  curves <- curve_data(fit)
 
   expect_s3_class(plot, "ggplot")
   expect_equal(unique(attr(plot, "curve_data")$model), "LL.3")
   expect_equal(length(attr(plot, "fitted_models")), 2)
+  expect_equal(nrow(plot$curve_data), nrow(curves))
+  expect_equal(plot$curve_data$dose, curves$dose)
+  expect_equal(plot$curve_data$growth, curves$growth)
 })
 
 test_that("plot_EC50_curves supports multiple models", {

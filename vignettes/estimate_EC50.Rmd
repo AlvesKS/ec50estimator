@@ -14,7 +14,7 @@ vignette: >
 
 ## Introduction
 
-Use `estimate_EC50()` when you already know which dose-response model should be fitted to each isolate. The function runs the same `drc` model across isolates and optional strata, then returns a single data frame with the EC estimates.
+Use `estimate_EC50()` when you already know which dose-response model should be fitted to each isolate. The function runs the same `drc` model across isolates and optional strata, then returns an EC50 fit object that behaves like a data frame and also stores the information needed for plotting and prediction.
 
 ## Packages
 
@@ -51,7 +51,7 @@ ggplot(multi_isolate, aes(dose, growth, color = growth)) +
 `estimate_EC50()` needs the same model ingredients you would pass to `drc::drm()`: a formula, a data frame, and a model function such as `drc::LL.3()`. Use `isolate_col` to identify isolates and `strata_col` for grouping columns such as field, fungicide, year, or location.
 
 ```{r}
-df_ec50 <- estimate_EC50(
+fit <- estimate_EC50(
   growth ~ dose,
   data = multi_isolate,
   isolate_col = "isolate",
@@ -60,10 +60,44 @@ df_ec50 <- estimate_EC50(
   fct = drc::LL.3()
 )
 
-head(df_ec50)
+head(fit)
 ```
 
 The result keeps the isolate identifier in `ID`, then returns the strata columns and the effective-dose estimate columns from `drc::ED()`.
+
+## Extract Fit Information
+
+Use the extractor helpers when you want a specific part of the fitted object. `ec50_estimates()` returns a plain data frame, while `ec50_metadata()` summarizes the model setup that is stored with the fit.
+
+```{r}
+df_ec50 <- ec50_estimates(fit)
+head(df_ec50)
+
+ec50_metadata(fit)
+```
+
+The fitted curve coordinates are also available without rebuilding the model. This is useful when you want to make a custom `ggplot2` figure.
+
+```{r}
+curves <- curve_data(fit)
+head(curves)
+```
+
+The stored `drc` model objects are available for advanced diagnostics.
+
+```{r}
+models <- fitted_models(fit)
+length(models)
+names(models)[1:3]
+```
+
+## Plot Fitted Curves
+
+Use `plot_EC50_curves()` directly on the fitted object. The function reads the formula, original data, groups, and stored fitted models from `fit`.
+
+```{r fig.alt="Faceted dose-response plot with raw observations and fitted EC50 curves for each isolate."}
+plot_EC50_curves(fit)
+```
 
 ## Visualize Results
 

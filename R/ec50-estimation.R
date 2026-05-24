@@ -287,12 +287,17 @@ new_ec50_result <- function(result,
                             strata_col,
                             fct,
                             result_class) {
+  fitted_models <- attr(result, "ec50_models")
+  if (is.null(fitted_models)) {
+    fitted_models <- list()
+  }
+  attr(result, "ec50_models") <- fitted_models
   attr(result, "ec50_formula") <- formula
   attr(result, "ec50_data") <- data
   attr(result, "ec50_isolate_col") <- isolate_col
   attr(result, "ec50_strata_col") <- strata_col
   attr(result, "ec50_fct") <- fct
-  attr(result, "ec50_model_labels") <- vapply(normalize_model_list(fct), model_label, character(1))
+  attr(result, "ec50_model_labels") <- unique(vapply(fitted_models, function(model) model$model, character(1)))
   class(result) <- unique(c(result_class, class(result)))
   result
 }
