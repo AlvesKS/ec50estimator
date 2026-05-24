@@ -62,7 +62,10 @@ a warning.}
 A data frame with one row per successful estimate. The first columns
   identify the isolate (`ID`) and strata, followed by columns returned by
   [drc::ED()]. `ec50_multimodel()` also appends model-selection statistics from
-  [drc::mselect()] and a `model` column.
+  [drc::mselect()] and a `model` column. The result keeps its data-frame
+  behavior, but also stores the original data, formula, grouping columns, model
+  functions, and fitted `drc` models so it can be passed directly to
+  [plot_EC50_curves()].
 }
 \description{
 `estimate_EC50()` fits one dose-response model per isolate, optionally within

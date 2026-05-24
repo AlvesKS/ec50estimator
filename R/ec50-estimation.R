@@ -29,7 +29,10 @@
 #' @return A data frame with one row per successful estimate. The first columns
 #'   identify the isolate (`ID`) and strata, followed by columns returned by
 #'   [drc::ED()]. `ec50_multimodel()` also appends model-selection statistics from
-#'   [drc::mselect()] and a `model` column.
+#'   [drc::mselect()] and a `model` column. The result keeps its data-frame
+#'   behavior, but also stores the original data, formula, grouping columns, model
+#'   functions, and fitted `drc` models so it can be passed directly to
+#'   [plot_EC50_curves()].
 #'
 #' @examples
 #' data(multi_isolate)
@@ -64,7 +67,7 @@ estimate_EC50 <- function(formula,
   type <- match.arg(type)
   validate_ec50_inputs(formula, data, EC_lvl, isolate_col, strata_col, fct)
 
-  estimate_single_model(
+  result <- estimate_single_model(
     formula = formula,
     data = data,
     EC_lvl = EC_lvl,
@@ -75,6 +78,16 @@ estimate_EC50 <- function(formula,
     type = type,
     quiet = quiet,
     include_model_stats = FALSE
+  )
+
+  new_ec50_result(
+    result = result,
+    formula = formula,
+    data = data,
+    isolate_col = isolate_col,
+    strata_col = strata_col,
+    fct = fct,
+    result_class = "ec50_estimate"
   )
 }
 
@@ -112,7 +125,21 @@ ec50_multimodel <- function(formula,
     )
   })
 
-  bind_rows(results)
+  result <- bind_rows(results)
+  attr(result, "ec50_models") <- unlist(
+    lapply(results, function(single_result) attr(single_result, "ec50_models")),
+    recursive = FALSE
+  )
+
+  new_ec50_result(
+    result = result,
+    formula = formula,
+    data = data,
+    isolate_col = isolate_col,
+    strata_col = strata_col,
+    fct = fct,
+    result_class = c("ec50_multimodel", "ec50_estimate")
+  )
 }
 
 validate_ec50_inputs <- function(formula,
@@ -182,6 +209,7 @@ estimate_single_model <- function(formula,
   groups <- split(seq_len(nrow(data)), data[group_cols], drop = TRUE)
   results <- vector("list", length(groups))
   failures <- character()
+  fitted_models <- list()
 
   for (i in seq_along(groups)) {
     group_data <- data[groups[[i]], , drop = FALSE]
@@ -201,7 +229,12 @@ estimate_single_model <- function(formula,
       next
     }
 
-    results[[i]] <- add_identifiers(fit, identifiers, isolate_col, strata_col)
+    results[[i]] <- add_identifiers(fit$estimates, identifiers, isolate_col, strata_col)
+    fitted_models[[length(fitted_models) + 1]] <- list(
+      identifiers = identifiers,
+      model = fit$model_name,
+      fit = fit$model
+    )
   }
 
   if (length(failures) > 0 && !quiet) {
@@ -214,7 +247,9 @@ estimate_single_model <- function(formula,
     )
   }
 
-  bind_rows(results)
+  result <- bind_rows(results)
+  attr(result, "ec50_models") <- fitted_models
+  result
 }
 
 try_fit_ec50 <- function(formula,
@@ -232,16 +267,34 @@ try_fit_ec50 <- function(formula,
     names(estimates) <- make.names(names(estimates))
     row.names(estimates) <- NULL
 
+    model_name <- model_label(fct)
     if (include_model_stats) {
       stats <- as.data.frame(drc::mselect(model, fctList = list(fct)))[1, , drop = FALSE]
       names(stats) <- make.names(names(stats))
       row.names(stats) <- NULL
-      stats$model <- model_label(fct)
+      stats$model <- model_name
       estimates <- cbind(estimates, stats)
     }
 
-    estimates
+    list(estimates = estimates, model = model, model_name = model_name)
   }, silent = TRUE)
+}
+
+new_ec50_result <- function(result,
+                            formula,
+                            data,
+                            isolate_col,
+                            strata_col,
+                            fct,
+                            result_class) {
+  attr(result, "ec50_formula") <- formula
+  attr(result, "ec50_data") <- data
+  attr(result, "ec50_isolate_col") <- isolate_col
+  attr(result, "ec50_strata_col") <- strata_col
+  attr(result, "ec50_fct") <- fct
+  attr(result, "ec50_model_labels") <- vapply(normalize_model_list(fct), model_label, character(1))
+  class(result) <- unique(c(result_class, class(result)))
+  result
 }
 
 add_identifiers <- function(estimates, identifiers, isolate_col, strata_col) {

@@ -16,6 +16,33 @@ test_that("plot_EC50_curves returns a ggplot for a single model", {
   expect_s3_class(plot, "ggplot")
   expect_equal(length(plot$layers), 2)
   expect_s3_class(plot$facet, "FacetNull")
+  expect_true(is.factor(plot$layers[[1]]$data$isolate))
+  expect_true(is.factor(plot$layers[[2]]$data$isolate))
+  expect_s3_class(attr(plot, "curve_data"), "data.frame")
+  expect_s3_class(attr(plot, "observed_data"), "data.frame")
+  expect_identical(plot$curve_data, attr(plot, "curve_data"))
+  expect_identical(plot$observed_data, attr(plot, "observed_data"))
+})
+
+test_that("plot_EC50_curves uses fitted package output without repeated inputs", {
+  data(multi_isolate)
+  sample_data <- subset(
+    multi_isolate,
+    isolate %in% c(1, 3) & field == "Organic" & fungicida == "Fungicide A"
+  )
+
+  fit <- estimate_EC50(
+    growth ~ dose,
+    data = sample_data,
+    isolate_col = "isolate",
+    fct = drc::LL.3(),
+    quiet = TRUE
+  )
+  plot <- plot_EC50_curves(fit)
+
+  expect_s3_class(plot, "ggplot")
+  expect_equal(unique(attr(plot, "curve_data")$model), "LL.3")
+  expect_equal(length(attr(plot, "fitted_models")), 2)
 })
 
 test_that("plot_EC50_curves supports multiple models", {
@@ -36,6 +63,27 @@ test_that("plot_EC50_curves supports multiple models", {
   expect_s3_class(plot, "ggplot")
   expect_true("model" %in% names(plot$layers[[2]]$data))
   expect_equal(unique(plot$layers[[2]]$data$model), c("LL.3", "LL.4"))
+})
+
+test_that("plot_EC50_curves supports multimodel output directly", {
+  data(multi_isolate)
+  sample_data <- subset(
+    multi_isolate,
+    isolate == 1 & field == "Organic" & fungicida == "Fungicide A"
+  )
+
+  fit <- ec50_multimodel(
+    growth ~ dose,
+    data = sample_data,
+    isolate_col = "isolate",
+    fct = list(drc::LL.3(), drc::LL.4()),
+    quiet = TRUE
+  )
+  plot <- plot_EC50_curves(fit)
+
+  expect_s3_class(plot, "ggplot")
+  expect_equal(unique(attr(plot, "curve_data")$model), c("LL.3", "LL.4"))
+  expect_true("linetype" %in% names(plot$layers[[2]]$mapping))
 })
 
 test_that("plot_EC50_curves validates columns and formulas", {
@@ -131,6 +179,23 @@ test_that("plot_EC50_curves uses sensible faceting defaults", {
     quiet = TRUE
   )
   expect_s3_class(two_strata$facet, "FacetGrid")
+})
+
+test_that("plot_EC50_curves uses the first two strata as facet grid dimensions", {
+  data(multi_isolate)
+  fit <- estimate_EC50(
+    growth ~ dose,
+    data = subset(multi_isolate, isolate %in% c(1, 3)),
+    isolate_col = "isolate",
+    strata_col = c("field", "fungicida"),
+    fct = drc::LL.3(),
+    quiet = TRUE
+  )
+
+  plot <- plot_EC50_curves(fit)
+
+  expect_s3_class(plot$facet, "FacetGrid")
+  expect_true(all(c("field", "fungicida") %in% names(attr(plot, "curve_data"))))
 })
 
 test_that("plot_EC50_curves carries explicit plotting columns into predictions", {

@@ -100,26 +100,37 @@ After choosing an appropriate model, use `estimate_EC50()` for the final estimat
 
 ## Plot Fitted Curves
 
-Use `plot_EC50_curves()` to visualize raw observations and fitted dose-response curves in the same graph. The function uses the same grouping idea as `estimate_EC50()` and `ec50_multimodel()`.
+Use `plot_EC50_curves()` to visualize raw observations and fitted dose-response curves in the same graph. The function can use the output from `estimate_EC50()` or `ec50_multimodel()`, so you do not need to repeat the formula, data, grouping columns, or model functions.
 
 ```{r fig.alt="Faceted dose-response plot with raw points and one fitted curve per isolate and field system."}
-plot_EC50_curves(
+single_fit <- estimate_EC50(
   growth ~ dose,
   data = example_data,
   isolate_col = "isolate",
   strata_col = "field",
   fct = drc::LL.3()
 )
+
+plot_EC50_curves(single_fit)
 ```
 
 When several candidate models are supplied, all fitted curves are drawn and the model is mapped to line type.
 
 ```{r fig.alt="Faceted dose-response plot with raw points and multiple fitted model curves per isolate and field system."}
-plot_EC50_curves(
+multi_fit <- ec50_multimodel(
   growth ~ dose,
   data = example_data,
   isolate_col = "isolate",
   strata_col = "field",
   fct = list(drc::LL.3(), drc::LL.4())
 )
+
+plot_EC50_curves(multi_fit)
+```
+
+The curve coordinates are attached to the returned plot for additional editing or custom graphics.
+
+```{r}
+p <- plot_EC50_curves(multi_fit)
+head(p$curve_data)
 ```

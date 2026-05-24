@@ -15,9 +15,13 @@ test_that("estimate_EC50 returns estimates for stratified isolate data", {
   )
 
   expect_s3_class(result, "data.frame")
+  expect_s3_class(result, "ec50_estimate")
   expect_named(result, c("ID", "field", "fungicida", "Estimate", "Std..Error"))
   expect_equal(result$ID, c("1", "3"))
   expect_true(all(result$Estimate > 0))
+  expect_equal(attr(result, "ec50_isolate_col"), "isolate")
+  expect_equal(attr(result, "ec50_strata_col"), c("field", "fungicida"))
+  expect_equal(length(attr(result, "ec50_models")), 2)
 })
 
 test_that("estimate_EC50 validates inputs before fitting", {
@@ -82,7 +86,9 @@ test_that("ec50_multimodel appends model-selection statistics", {
   )
 
   expect_s3_class(result, "data.frame")
+  expect_s3_class(result, "ec50_multimodel")
   expect_equal(nrow(result), 2)
   expect_true(all(c("ID", "Estimate", "Std..Error", "model", "IC") %in% names(result)))
   expect_equal(result$model, c("LL.3", "LL.4"))
+  expect_equal(length(attr(result, "ec50_models")), 2)
 })

@@ -1,23 +1,26 @@
 #' Plot fitted dose-response curves for multiple isolates
 #'
 #' @description
-#' `plot_EC50_curves()` fits one or more `drc` dose-response models for each
-#' isolate and optional stratum, then returns a `ggplot2` object with raw
-#' observations and fitted curves.
+#' `plot_EC50_curves()` plots an object returned by [estimate_EC50()] or
+#' [ec50_multimodel()]. It uses the formula, original data, grouping columns, and
+#' fitted `drc` models stored in that result, so users do not need to repeat the
+#' modeling arguments. For compatibility, the function also accepts the original
+#' formula/data interface.
 #'
-#' @param formula A two-sided formula passed to [drc::drm()], for example
-#'   `growth ~ dose`. The plotting helper supports exactly one predictor on the
-#'   right-hand side.
+#' @param x An object returned by [estimate_EC50()] or [ec50_multimodel()]. A
+#'   two-sided formula such as `growth ~ dose` is also accepted for compatibility.
 #' @param data A data frame containing the response, dose, isolate, and optional
-#'   stratification columns.
+#'   stratification columns. Required only when `x` is a formula.
 #' @param isolate_col Character scalar naming the column that identifies each
-#'   isolate.
+#'   isolate. Required only when `x` is a formula.
 #' @param strata_col Optional character vector naming columns used to split the
-#'   data before fitting models.
+#'   data before fitting models. Used only when `x` is a formula.
 #' @param fct A `drc` model function object such as `drc::LL.3()`, or a list of
-#'   model function objects such as `list(drc::LL.3(), drc::LL.4())`.
+#'   model function objects such as `list(drc::LL.3(), drc::LL.4())`. Required
+#'   only when `x` is a formula.
 #' @param color_col Character scalar naming the column mapped to curve and point
-#'   color. Defaults to `isolate_col`.
+#'   color. Defaults to the isolate column and is always converted to a factor
+#'   before plotting.
 #' @param facet_col,facet_row Optional character scalars naming columns used for
 #'   faceting. When omitted, the first two `strata_col` values are used.
 #' @param n_points Number of dose values used to draw each fitted curve.
@@ -28,7 +31,9 @@
 #' @param quiet Logical. If `FALSE`, failed group/model fits are reported with a
 #'   warning.
 #'
-#' @return A `ggplot2` object.
+#' @return A `ggplot2` object. The plotted curve data, observed data, and fitted
+#'   models are attached to the returned object as `curve_data`,
+#'   `observed_data`, and `fitted_models` attributes and list elements.
 #'
 #' @examples
 #' data(multi_isolate)
@@ -37,29 +42,31 @@
 #'   isolate %in% 1:4 & fungicida == "Fungicide A"
 #' )
 #'
-#' plot_EC50_curves(
+#' fit <- estimate_EC50(
 #'   growth ~ dose,
 #'   data = sample_data,
 #'   isolate_col = "isolate",
 #'   strata_col = "field",
 #'   fct = drc::LL.3()
 #' )
+#' plot_EC50_curves(fit)
 #'
-#' plot_EC50_curves(
+#' multi_fit <- ec50_multimodel(
 #'   growth ~ dose,
 #'   data = sample_data,
 #'   isolate_col = "isolate",
 #'   strata_col = "field",
 #'   fct = list(drc::LL.3(), drc::LL.4())
 #' )
+#' plot_EC50_curves(multi_fit)
 #'
 #' @export
-plot_EC50_curves <- function(formula,
-                             data,
-                             isolate_col,
+plot_EC50_curves <- function(x,
+                             data = NULL,
+                             isolate_col = NULL,
                              strata_col = NULL,
-                             fct,
-                             color_col = isolate_col,
+                             fct = NULL,
+                             color_col = NULL,
                              facet_col = NULL,
                              facet_row = NULL,
                              n_points = 200,
@@ -68,14 +75,34 @@ plot_EC50_curves <- function(formula,
                              point_alpha = 0.8,
                              line_width = 1,
                              quiet = FALSE) {
-  validate_ec50_inputs(
-    formula = formula,
-    data = data,
-    EC_lvl = 50,
-    isolate_col = isolate_col,
-    strata_col = strata_col,
-    fct = fct
-  )
+  fit_input <- inherits(x, "ec50_estimate")
+  if (fit_input) {
+    formula <- attr(x, "ec50_formula")
+    data <- attr(x, "ec50_data")
+    isolate_col <- attr(x, "ec50_isolate_col")
+    strata_col <- attr(x, "ec50_strata_col")
+    model_list <- normalize_model_list(attr(x, "ec50_fct"))
+    fitted_models <- attr(x, "ec50_models")
+  } else {
+    formula <- x
+    if (is.null(fct)) {
+      stop("Please specify 'fct' when plotting from a formula.", call. = FALSE)
+    }
+    validate_ec50_inputs(
+      formula = formula,
+      data = data,
+      EC_lvl = 50,
+      isolate_col = isolate_col,
+      strata_col = strata_col,
+      fct = fct
+    )
+    model_list <- normalize_model_list(fct)
+    fitted_models <- NULL
+  }
+
+  if (is.null(color_col)) {
+    color_col <- isolate_col
+  }
   validate_plot_inputs(
     formula = formula,
     data = data,
@@ -92,19 +119,33 @@ plot_EC50_curves <- function(formula,
   vars <- formula_variables(formula)
   response_col <- vars$response
   dose_col <- vars$dose
-  model_list <- normalize_model_list(fct)
-  prediction_data <- build_curve_predictions(
-    formula = formula,
-    data = data,
-    isolate_col = isolate_col,
-    strata_col = strata_col,
-    plot_cols = unique(c(color_col, facet_col, facet_row)),
-    dose_col = dose_col,
-    model_list = model_list,
-    n_points = n_points,
-    log_x = log_x,
-    quiet = quiet
-  )
+  if (fit_input && length(fitted_models) > 0) {
+    prediction_data <- build_curve_predictions_from_fits(
+      formula = formula,
+      data = data,
+      isolate_col = isolate_col,
+      strata_col = strata_col,
+      plot_cols = unique(c(color_col, facet_col, facet_row)),
+      dose_col = dose_col,
+      fitted_models = fitted_models,
+      n_points = n_points,
+      log_x = log_x,
+      quiet = quiet
+    )
+  } else {
+    prediction_data <- build_curve_predictions(
+      formula = formula,
+      data = data,
+      isolate_col = isolate_col,
+      strata_col = strata_col,
+      plot_cols = unique(c(color_col, facet_col, facet_row)),
+      dose_col = dose_col,
+      model_list = model_list,
+      n_points = n_points,
+      log_x = log_x,
+      quiet = quiet
+    )
+  }
   if (nrow(prediction_data) == 0) {
     stop("No fitted curves could be produced.", call. = FALSE)
   }
@@ -112,6 +153,9 @@ plot_EC50_curves <- function(formula,
   if (log_x) {
     observed_data <- observed_data[is.finite(observed_data[[dose_col]]) & observed_data[[dose_col]] > 0, , drop = FALSE]
   }
+  observed_data[[color_col]] <- factor(observed_data[[color_col]])
+  prediction_data[[color_col]] <- factor(prediction_data[[color_col]])
+  multiple_models <- length(unique(prediction_data$model)) > 1
 
   point_mapping <- do.call(
     ggplot2::aes,
@@ -126,7 +170,7 @@ plot_EC50_curves <- function(formula,
       group = as.name(".curve_group")
     )
   )
-  if (length(model_list) > 1) {
+  if (multiple_models) {
     line_mapping$linetype <- as.name("model")
   }
 
@@ -145,14 +189,21 @@ plot_EC50_curves <- function(formula,
     ggplot2::labs(x = dose_col, y = response_col, color = color_col) +
     ggplot2::theme_light()
 
-  if (length(model_list) > 1) {
+  if (multiple_models) {
     plot <- plot + ggplot2::labs(linetype = "model")
   }
   if (log_x) {
     plot <- plot + ggplot2::scale_x_log10()
   }
 
-  add_curve_facets(plot, strata_col, facet_col, facet_row)
+  plot <- add_curve_facets(plot, strata_col, facet_col, facet_row)
+  attr(plot, "curve_data") <- prediction_data
+  attr(plot, "observed_data") <- observed_data
+  attr(plot, "fitted_models") <- fitted_models
+  plot$curve_data <- prediction_data
+  plot$observed_data <- observed_data
+  plot$fitted_models <- fitted_models
+  plot
 }
 
 validate_plot_inputs <- function(formula,
@@ -281,6 +332,63 @@ build_curve_predictions <- function(formula,
   bind_rows(prediction_results)
 }
 
+build_curve_predictions_from_fits <- function(formula,
+                                              data,
+                                              isolate_col,
+                                              strata_col,
+                                              plot_cols,
+                                              dose_col,
+                                              fitted_models,
+                                              n_points,
+                                              log_x,
+                                              quiet) {
+  group_cols <- c(strata_col, isolate_col)
+  prediction_results <- list()
+  failures <- character()
+
+  for (i in seq_along(fitted_models)) {
+    fitted_model <- fitted_models[[i]]
+    group_rows <- rows_matching_identifiers(data, fitted_model$identifiers)
+    group_data <- data[group_rows, , drop = FALSE]
+    if (nrow(group_data) == 0) {
+      failures <- c(failures, format_failure(fitted_model$identifiers, simple_try_error("no matching original data")))
+      next
+    }
+
+    identifier_cols <- unique(c(group_cols, plot_cols))
+    identifiers <- group_data[1, identifier_cols, drop = FALSE]
+    prediction <- try_predict_from_model(
+      formula = formula,
+      data = group_data,
+      identifiers = identifiers,
+      dose_col = dose_col,
+      fitted_model = fitted_model$fit,
+      model_name = fitted_model$model,
+      n_points = n_points,
+      log_x = log_x
+    )
+
+    if (inherits(prediction, "try-error")) {
+      failures <- c(failures, format_failure(identifiers, prediction))
+      next
+    }
+
+    prediction_results[[length(prediction_results) + 1]] <- prediction
+  }
+
+  if (length(failures) > 0 && !quiet) {
+    warning(
+      "Fitted curves could not be produced for ",
+      length(failures),
+      " stored model(s): ",
+      paste(failures, collapse = "; "),
+      call. = FALSE
+    )
+  }
+
+  bind_rows(prediction_results)
+}
+
 try_predict_curve <- function(formula,
                               data,
                               identifiers,
@@ -290,39 +398,109 @@ try_predict_curve <- function(formula,
                               n_points,
                               log_x) {
   try({
-    model_data <- data
-    if (log_x) {
-      model_data <- model_data[is.finite(model_data[[dose_col]]) & model_data[[dose_col]] > 0, , drop = FALSE]
-    }
-    if (nrow(model_data) == 0) {
-      stop("no positive dose values available for log-scale plotting", call. = FALSE)
-    }
-
-    dose_values <- model_data[[dose_col]]
-    dose_grid <- make_dose_grid(dose_values, n_points, log_x)
-    newdata <- data.frame(dose_grid)
-    names(newdata) <- dose_col
+    model_data <- prepare_model_data_for_plot(data, dose_col, log_x)
     model <- drc::drm(formula, fct = model_fct, data = model_data)
-    predicted <- stats::predict(model, newdata = newdata)
-
-    prediction <- data.frame(
-      identifiers[rep(1, length(dose_grid)), , drop = FALSE],
-      model = model_name,
-      newdata,
-      .predicted = as.numeric(predicted),
-      stringsAsFactors = FALSE,
-      check.names = FALSE
+    predict_curve_data(
+      formula = formula,
+      model_data = model_data,
+      identifiers = identifiers,
+      dose_col = dose_col,
+      fitted_model = model,
+      model_name = model_name,
+      n_points = n_points,
+      log_x = log_x
     )
-
-    vars <- formula_variables(formula)
-    names(prediction)[names(prediction) == ".predicted"] <- vars$response
-    prediction$.curve_group <- interaction(
-      prediction[c(names(identifiers), "model")],
-      drop = TRUE,
-      lex.order = TRUE
-    )
-    prediction
   }, silent = TRUE)
+}
+
+try_predict_from_model <- function(formula,
+                                   data,
+                                   identifiers,
+                                   dose_col,
+                                   fitted_model,
+                                   model_name,
+                                   n_points,
+                                   log_x) {
+  try({
+    model_data <- prepare_model_data_for_plot(data, dose_col, log_x)
+    predict_curve_data(
+      formula = formula,
+      model_data = model_data,
+      identifiers = identifiers,
+      dose_col = dose_col,
+      fitted_model = fitted_model,
+      model_name = model_name,
+      n_points = n_points,
+      log_x = log_x
+    )
+  }, silent = TRUE)
+}
+
+prepare_model_data_for_plot <- function(data, dose_col, log_x) {
+  model_data <- data
+  if (log_x) {
+    model_data <- model_data[is.finite(model_data[[dose_col]]) & model_data[[dose_col]] > 0, , drop = FALSE]
+  }
+  if (nrow(model_data) == 0) {
+    stop("no positive dose values available for log-scale plotting", call. = FALSE)
+  }
+
+  model_data
+}
+
+predict_curve_data <- function(formula,
+                               model_data,
+                               identifiers,
+                               dose_col,
+                               fitted_model,
+                               model_name,
+                               n_points,
+                               log_x) {
+  dose_values <- model_data[[dose_col]]
+  dose_grid <- make_dose_grid(dose_values, n_points, log_x)
+  newdata <- data.frame(dose_grid)
+  names(newdata) <- dose_col
+  predicted <- stats::predict(fitted_model, newdata = newdata)
+
+  prediction <- data.frame(
+    identifiers[rep(1, length(dose_grid)), , drop = FALSE],
+    model = model_name,
+    newdata,
+    .predicted = as.numeric(predicted),
+    stringsAsFactors = FALSE,
+    check.names = FALSE
+  )
+
+  vars <- formula_variables(formula)
+  names(prediction)[names(prediction) == ".predicted"] <- vars$response
+  prediction$.curve_group <- interaction(
+    prediction[c(names(identifiers), "model")],
+    drop = TRUE,
+    lex.order = TRUE
+  )
+  prediction
+}
+
+rows_matching_identifiers <- function(data, identifiers) {
+  matched <- rep(TRUE, nrow(data))
+  for (column in names(identifiers)) {
+    identifier_value <- identifiers[[column]][1]
+    if (is.na(identifier_value)) {
+      matched <- matched & is.na(data[[column]])
+    } else {
+      matched <- matched & as.character(data[[column]]) == as.character(identifier_value)
+    }
+  }
+
+  matched
+}
+
+simple_try_error <- function(message) {
+  error <- structure(
+    list(message = message, call = NULL),
+    class = c("simpleError", "error", "condition")
+  )
+  structure(message, class = "try-error", condition = error)
 }
 
 make_dose_grid <- function(dose_values, n_points, log_x) {

@@ -5,12 +5,12 @@
 \title{Plot fitted dose-response curves for multiple isolates}
 \usage{
 plot_EC50_curves(
-  formula,
-  data,
-  isolate_col,
+  x,
+  data = NULL,
+  isolate_col = NULL,
   strata_col = NULL,
-  fct,
-  color_col = isolate_col,
+  fct = NULL,
+  color_col = NULL,
   facet_col = NULL,
   facet_row = NULL,
   n_points = 200,
@@ -22,24 +22,25 @@ plot_EC50_curves(
 )
 }
 \arguments{
-\item{formula}{A two-sided formula passed to [drc::drm()], for example
-`growth ~ dose`. The plotting helper supports exactly one predictor on the
-right-hand side.}
+\item{x}{An object returned by [estimate_EC50()] or [ec50_multimodel()]. A
+two-sided formula such as `growth ~ dose` is also accepted for compatibility.}
 
 \item{data}{A data frame containing the response, dose, isolate, and optional
-stratification columns.}
+stratification columns. Required only when `x` is a formula.}
 
 \item{isolate_col}{Character scalar naming the column that identifies each
-isolate.}
+isolate. Required only when `x` is a formula.}
 
 \item{strata_col}{Optional character vector naming columns used to split the
-data before fitting models.}
+data before fitting models. Used only when `x` is a formula.}
 
 \item{fct}{A `drc` model function object such as `drc::LL.3()`, or a list of
-model function objects such as `list(drc::LL.3(), drc::LL.4())`.}
+model function objects such as `list(drc::LL.3(), drc::LL.4())`. Required
+only when `x` is a formula.}
 
 \item{color_col}{Character scalar naming the column mapped to curve and point
-color. Defaults to `isolate_col`.}
+color. Defaults to the isolate column and is always converted to a factor
+before plotting.}
 
 \item{facet_col, facet_row}{Optional character scalars naming columns used for
 faceting. When omitted, the first two `strata_col` values are used.}
@@ -57,12 +58,16 @@ values from the plotted data and prediction grid.}
 warning.}
 }
 \value{
-A `ggplot2` object.
+A `ggplot2` object. The plotted curve data, observed data, and fitted
+  models are attached to the returned object as `curve_data`,
+  `observed_data`, and `fitted_models` attributes and list elements.
 }
 \description{
-`plot_EC50_curves()` fits one or more `drc` dose-response models for each
-isolate and optional stratum, then returns a `ggplot2` object with raw
-observations and fitted curves.
+`plot_EC50_curves()` plots an object returned by [estimate_EC50()] or
+[ec50_multimodel()]. It uses the formula, original data, grouping columns, and
+fitted `drc` models stored in that result, so users do not need to repeat the
+modeling arguments. For compatibility, the function also accepts the original
+formula/data interface.
 }
 \examples{
 data(multi_isolate)
@@ -71,20 +76,22 @@ sample_data <- subset(
   isolate \%in\% 1:4 & fungicida == "Fungicide A"
 )
 
-plot_EC50_curves(
+fit <- estimate_EC50(
   growth ~ dose,
   data = sample_data,
   isolate_col = "isolate",
   strata_col = "field",
   fct = drc::LL.3()
 )
+plot_EC50_curves(fit)
 
-plot_EC50_curves(
+multi_fit <- ec50_multimodel(
   growth ~ dose,
   data = sample_data,
   isolate_col = "isolate",
   strata_col = "field",
   fct = list(drc::LL.3(), drc::LL.4())
 )
+plot_EC50_curves(multi_fit)
 
 }
