@@ -2,7 +2,7 @@ Package: ec50estimator
 Type: Package
 Title: An Automated Way to Estimate EC50 for Stratified Datasets
 Version: 1.0.0
-Date: 2026-04-25
+Date: 2026-05-24
 Authors@R: c(
     person(given = "Kaique dos S.",
            family = "Alves", 
