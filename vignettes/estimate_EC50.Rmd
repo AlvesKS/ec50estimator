@@ -35,6 +35,18 @@ data(multi_isolate)
 head(multi_isolate)
 ```
 
+Run a quick check before fitting to identify common data issues within each isolate and stratum.
+
+```{r}
+head(check_ec50_data(
+  multi_isolate,
+  response = "growth",
+  dose = "dose",
+  isolate = "isolate",
+  strata = c("field", "fungicida")
+))
+```
+
 Inspect the raw dose-response data before fitting models.
 
 ```{r fig.alt="Jitter plot of mycelial growth by fungicide dose, faceted by field system and fungicide."}
@@ -76,6 +88,14 @@ head(df_ec50)
 ec50_metadata(fit)
 ```
 
+Use `fit_quality()` and `fit_failures()` to inspect which groups fitted successfully and whether any groups failed.
+
+```{r}
+head(fit_quality(fit))
+
+fit_failures(fit)
+```
+
 The fitted curve coordinates are also available without rebuilding the model. This is useful when you want to make a custom `ggplot2` figure.
 
 ```{r}
@@ -97,6 +117,25 @@ Use `plot_EC50_curves()` directly on the fitted object. The function reads the f
 
 ```{r fig.alt="Faceted dose-response plot with raw observations and fitted EC50 curves for each isolate."}
 plot_EC50_curves(fit)
+```
+
+You can also predict responses at specific doses and create a plain reporting table.
+
+```{r}
+head(predict_ec50(fit, dose = c(0.001, 0.01, 0.1)))
+
+report <- report_ec50(fit)
+head(report)
+```
+
+Residual diagnostics are available as data and as `ggplot2` figures.
+
+```{r}
+head(residual_data(fit))
+```
+
+```{r fig.alt="Residual diagnostic plot for EC50 fits, with residuals plotted against fitted values."}
+plot_residuals(fit)
 ```
 
 ## Visualize Results

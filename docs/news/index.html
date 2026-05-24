@@ -42,6 +42,7 @@
 <li>
 <code><a href="../reference/estimate_EC50.html">estimate_EC50()</a></code> and <code><a href="../reference/estimate_EC50.html">ec50_multimodel()</a></code> now store plotting metadata and fitted models, allowing <code>plot_EC50_curves(fit)</code> without repeating the formula, data, grouping columns, or model functions.</li>
 <li>Added <code><a href="../reference/ec50_extractors.html">ec50_estimates()</a></code>, <code><a href="../reference/ec50_extractors.html">ec50_metadata()</a></code>, <code><a href="../reference/ec50_extractors.html">fitted_models()</a></code>, and <code><a href="../reference/ec50_extractors.html">curve_data()</a></code> helpers for working directly with fitted EC50 objects.</li>
+<li>Added workflow helpers for model selection, fit quality, failed fits, prediction, reporting, data checks, and residual diagnostics.</li>
 <li>Modernized EC50 estimation internals with shared validation, clearer errors, and warnings for failed isolate-level fits.</li>
 <li>Reduced imported dependencies to <code>drc</code>; <code>ggplot2</code> is imported for the exported plotting workflow.</li>
 <li>Added support for <code>type = "relative"</code> and <code>type = "absolute"</code> in <code><a href="../reference/estimate_EC50.html">estimate_EC50()</a></code>.</li>

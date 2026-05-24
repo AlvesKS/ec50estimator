@@ -23,6 +23,8 @@
 #'   before plotting.
 #' @param facet_col,facet_row Optional character scalars naming columns used for
 #'   faceting. When omitted, the first two `strata_col` values are used.
+#' @param models One of `"all"`, `"best"`, or a character vector of model names
+#'   to draw. `"best"` uses [best_model()] for multimodel fits.
 #' @param n_points Number of dose values used to draw each fitted curve.
 #' @param log_x Logical. If `TRUE`, use a log10 x-axis and omit non-positive dose
 #'   values from the plotted data and prediction grid.
@@ -69,6 +71,7 @@ plot_EC50_curves <- function(x,
                              color_col = NULL,
                              facet_col = NULL,
                              facet_row = NULL,
+                             models = "all",
                              n_points = 200,
                              log_x = TRUE,
                              point_size = 2,
@@ -119,8 +122,11 @@ plot_EC50_curves <- function(x,
   response_col <- vars$response
   dose_col <- vars$dose
   if (fit_input && length(fitted_models) > 0) {
+    selected_fit <- x
+    attr(selected_fit, "ec50_models") <- select_fitted_model_records(x, models = models)
+    fitted_models <- attr(selected_fit, "ec50_models")
     prediction_data <- curve_data_from_fit(
-      x = x,
+      x = selected_fit,
       n_points = n_points,
       log_x = log_x,
       quiet = quiet,
@@ -139,6 +145,9 @@ plot_EC50_curves <- function(x,
       log_x = log_x,
       quiet = quiet
     )
+    if (!(length(models) == 1 && models %in% c("all", "best"))) {
+      prediction_data <- prediction_data[prediction_data$model %in% models, , drop = FALSE]
+    }
   }
   if (nrow(prediction_data) == 0) {
     stop("No fitted curves could be produced.", call. = FALSE)

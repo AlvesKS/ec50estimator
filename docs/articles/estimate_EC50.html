@@ -109,8 +109,39 @@ isolates, two field systems, and two fungicides.</p>
 <span><span class="co">## 4       1 Organic Fungicide A 1e-03 15.8123455</span></span>
 <span><span class="co">## 5       1 Organic Fungicide A 1e-02  7.3206757</span></span>
 <span><span class="co">## 6       1 Organic Fungicide A 1e-01  0.6985264</span></span></code></pre>
-<p>Inspect the raw dose-response data before fitting models.</p>
+<p>Run a quick check before fitting to identify common data issues
+within each isolate and stratum.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/check_ec50_data.html">check_ec50_data</a></span><span class="op">(</span></span>
+<span>  <span class="va">multi_isolate</span>,</span>
+<span>  response <span class="op">=</span> <span class="st">"growth"</span>,</span>
+<span>  dose <span class="op">=</span> <span class="st">"dose"</span>,</span>
+<span>  isolate <span class="op">=</span> <span class="st">"isolate"</span>,</span>
+<span>  strata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"field"</span>, <span class="st">"fungicida"</span><span class="op">)</span></span>
+<span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##   ID        field   fungicida n_obs n_doses missing_response missing_dose</span></span>
+<span><span class="co">## 1  1      Organic Fungicide A    35       7                0            0</span></span>
+<span><span class="co">## 2  1      Organic Fungicide B    35       7                0            0</span></span>
+<span><span class="co">## 3  2 Conventional Fungicide A    35       7                0            0</span></span>
+<span><span class="co">## 4  2 Conventional Fungicide B    35       7                0            0</span></span>
+<span><span class="co">## 5  3      Organic Fungicide A    35       7                0            0</span></span>
+<span><span class="co">## 6  3      Organic Fungicide B    35       7                0            0</span></span>
+<span><span class="co">##   nonpositive_dose duplicated_rows no_response_variation too_few_observations</span></span>
+<span><span class="co">## 1                5               0                 FALSE                FALSE</span></span>
+<span><span class="co">## 2                5               0                 FALSE                FALSE</span></span>
+<span><span class="co">## 3                5               0                 FALSE                FALSE</span></span>
+<span><span class="co">## 4                5               0                 FALSE                FALSE</span></span>
+<span><span class="co">## 5                5               0                 FALSE                FALSE</span></span>
+<span><span class="co">## 6                5               0                 FALSE                FALSE</span></span>
+<span><span class="co">##   too_few_doses</span></span>
+<span><span class="co">## 1         FALSE</span></span>
+<span><span class="co">## 2         FALSE</span></span>
+<span><span class="co">## 3         FALSE</span></span>
+<span><span class="co">## 4         FALSE</span></span>
+<span><span class="co">## 5         FALSE</span></span>
+<span><span class="co">## 6         FALSE</span></span></code></pre>
+<p>Inspect the raw dose-response data before fitting models.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">multi_isolate</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">dose</span>, <span class="va">growth</span>, color <span class="op">=</span> <span class="va">growth</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_jitter.html" class="external-link">geom_jitter</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html" class="external-link">facet_grid</a></span><span class="op">(</span><span class="va">field</span> <span class="op">~</span> <span class="va">fungicida</span><span class="op">)</span> <span class="op">+</span></span>
@@ -119,7 +150,7 @@ isolates, two field systems, and two fungicides.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_light</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Warning in scale_x_log10(): <span style="color: #00BB00;">log-10</span> transformation introduced</span></span>
 <span><span class="co">## infinite values.</span></span></code></pre>
-<p><img src="estimate_EC50_files/figure-html/unnamed-chunk-3-1.png" alt="Jitter plot of mycelial growth by fungicide dose, faceted by field system and fungicide." width="700"></p>
+<p><img src="estimate_EC50_files/figure-html/unnamed-chunk-4-1.png" alt="Jitter plot of mycelial growth by fungicide dose, faceted by field system and fungicide." width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="estimate-ec50">Estimate EC50<a class="anchor" aria-label="anchor" href="#estimate-ec50"></a>
@@ -130,7 +161,7 @@ model function such as <code><a href="https://rdrr.io/pkg/drc/man/LL.3.html" cla
 <code>isolate_col</code> to identify isolates and
 <code>strata_col</code> for grouping columns such as field, fungicide,
 year, or location.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/estimate_EC50.html">estimate_EC50</a></span><span class="op">(</span></span>
 <span>  <span class="va">growth</span> <span class="op">~</span> <span class="va">dose</span>,</span>
 <span>  data <span class="op">=</span> <span class="va">multi_isolate</span>,</span>
@@ -166,7 +197,7 @@ returns the strata columns and the effective-dose estimate columns from
 object. <code><a href="../reference/ec50_extractors.html">ec50_estimates()</a></code> returns a plain data frame, while
 <code><a href="../reference/ec50_extractors.html">ec50_metadata()</a></code> summarizes the model setup that is stored
 with the fit.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df_ec50</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ec50_extractors.html">ec50_estimates</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">df_ec50</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##      ID        field   fungicida    Estimate   Std..Error       Lower</span></span>
@@ -183,7 +214,7 @@ with the fit.</p>
 <span><span class="co">## 1786 0.006363517</span></span>
 <span><span class="co">## 71   0.004272456</span></span>
 <span><span class="co">## 1821 0.004272456</span></span></code></pre>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/ec50_extractors.html">ec50_metadata</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## $formula</span></span>
 <span><span class="co">## growth ~ dose</span></span>
@@ -202,10 +233,33 @@ with the fit.</p>
 <span><span class="co">## </span></span>
 <span><span class="co">## $n_models</span></span>
 <span><span class="co">## [1] 100</span></span></code></pre>
+<p>Use <code><a href="../reference/fit_quality.html">fit_quality()</a></code> and <code><a href="../reference/fit_quality.html">fit_failures()</a></code> to
+inspect which groups fitted successfully and whether any groups
+failed.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/fit_quality.html">fit_quality</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##      ID        field   fungicida model fit_status n_obs n_doses dose_min</span></span>
+<span><span class="co">## 1     1      Organic Fungicide A  LL.3         ok    35       7        0</span></span>
+<span><span class="co">## 1751  1      Organic Fungicide B  LL.3         ok    35       7        0</span></span>
+<span><span class="co">## 36    2 Conventional Fungicide A  LL.3         ok    35       7        0</span></span>
+<span><span class="co">## 1786  2 Conventional Fungicide B  LL.3         ok    35       7        0</span></span>
+<span><span class="co">## 71    3      Organic Fungicide A  LL.3         ok    35       7        0</span></span>
+<span><span class="co">## 1821  3      Organic Fungicide B  LL.3         ok    35       7        0</span></span>
+<span><span class="co">##      dose_max response_min response_max message</span></span>
+<span><span class="co">## 1           1   0.07631550     20.66667    &lt;NA&gt;</span></span>
+<span><span class="co">## 1751        1   0.07631550     20.66667    &lt;NA&gt;</span></span>
+<span><span class="co">## 36          1   1.24394259     20.75420    &lt;NA&gt;</span></span>
+<span><span class="co">## 1786        1   0.06792987     20.74317    &lt;NA&gt;</span></span>
+<span><span class="co">## 71          1   0.06118528     20.78938    &lt;NA&gt;</span></span>
+<span><span class="co">## 1821        1   0.06118528     20.78938    &lt;NA&gt;</span></span></code></pre>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/fit_quality.html">fit_failures</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] ID        field     fungicida model     message  </span></span>
+<span><span class="co">## &lt;0 rows&gt; (or 0-length row.names)</span></span></code></pre>
 <p>The fitted curve coordinates are also available without rebuilding
 the model. This is useful when you want to make a custom
 <code>ggplot2</code> figure.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">curves</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ec50_extractors.html">curve_data</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">curves</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##       field   fungicida isolate model         dose   growth</span></span>
@@ -224,11 +278,11 @@ the model. This is useful when you want to make a custom
 <span><span class="co">## 1.5 Organic.Fungicide A.1.LL.3</span></span></code></pre>
 <p>The stored <code>drc</code> model objects are available for advanced
 diagnostics.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">models</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ec50_extractors.html">fitted_models</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">models</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] 100</span></span></code></pre>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">models</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] "field=Organic_fungicida=Fungicide A_isolate=1_model=LL.3"     </span></span>
 <span><span class="co">## [2] "field=Organic_fungicida=Fungicide B_isolate=1_model=LL.3"     </span></span>
@@ -240,15 +294,957 @@ diagnostics.</p>
 <p>Use <code><a href="../reference/plot_EC50_curves.html">plot_EC50_curves()</a></code> directly on the fitted object.
 The function reads the formula, original data, groups, and stored fitted
 models from <code>fit</code>.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_EC50_curves.html">plot_EC50_curves</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
-<p><img src="estimate_EC50_files/figure-html/unnamed-chunk-8-1.png" alt="Faceted dose-response plot with raw observations and fitted EC50 curves for each isolate." width="700"></p>
+<p><img src="estimate_EC50_files/figure-html/unnamed-chunk-10-1.png" alt="Faceted dose-response plot with raw observations and fitted EC50 curves for each isolate." width="700"></p>
+<p>You can also predict responses at specific doses and create a plain
+reporting table.</p>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/predict_ec50.html">predict_ec50</a></span><span class="op">(</span><span class="va">fit</span>, dose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.001</span>, <span class="fl">0.01</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span></code></pre>
+<pre><code><span><span class="co">##   ID   field   fungicida model  dose predicted</span></span>
+<span><span class="co">## 1  1 Organic Fungicide A  LL.3 0.001 16.639706</span></span>
+<span><span class="co">## 2  1 Organic Fungicide A  LL.3 0.010  7.764668</span></span>
+<span><span class="co">## 3  1 Organic Fungicide A  LL.3 0.100  1.484623</span></span>
+<span><span class="co">## 4  1 Organic Fungicide B  LL.3 0.001 16.639706</span></span>
+<span><span class="co">## 5  1 Organic Fungicide B  LL.3 0.010  7.764668</span></span>
+<span><span class="co">## 6  1 Organic Fungicide B  LL.3 0.100  1.484623</span></span></code></pre>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">report</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/report_ec50.html">report_ec50</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">report</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##      ID        field   fungicida    Estimate   Std..Error       Lower</span></span>
+<span><span class="co">## 1     1      Organic Fungicide A 0.006072082 0.0005740341 0.004902813</span></span>
+<span><span class="co">## 1751  1      Organic Fungicide B 0.006072082 0.0005740341 0.004902813</span></span>
+<span><span class="co">## 36    2 Conventional Fungicide A 0.101455765 0.0076364691 0.085900787</span></span>
+<span><span class="co">## 1786  2 Conventional Fungicide B 0.005297468 0.0005233600 0.004231418</span></span>
+<span><span class="co">## 71    3      Organic Fungicide A 0.003776957 0.0002432571 0.003281459</span></span>
+<span><span class="co">## 1821  3      Organic Fungicide B 0.003776957 0.0002432571 0.003281459</span></span>
+<span><span class="co">##            Upper</span></span>
+<span><span class="co">## 1    0.007241351</span></span>
+<span><span class="co">## 1751 0.007241351</span></span>
+<span><span class="co">## 36   0.117010744</span></span>
+<span><span class="co">## 1786 0.006363517</span></span>
+<span><span class="co">## 71   0.004272456</span></span>
+<span><span class="co">## 1821 0.004272456</span></span></code></pre>
+<p>Residual diagnostics are available as data and as
+<code>ggplot2</code> figures.</p>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/residual_data.html">residual_data</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span></code></pre>
+<pre><code><span><span class="co">##   ID   field   fungicida model  dose   observed    fitted   residual</span></span>
+<span><span class="co">## 1  1 Organic Fungicide A  LL.3 0e+00 20.2082399 19.925747  0.2824926</span></span>
+<span><span class="co">## 2  1 Organic Fungicide A  LL.3 1e-05 20.1168279 19.863383  0.2534450</span></span>
+<span><span class="co">## 3  1 Organic Fungicide A  LL.3 1e-04 19.2479678 19.441644 -0.1936758</span></span>
+<span><span class="co">## 4  1 Organic Fungicide A  LL.3 1e-03 15.8123455 16.639706 -0.8273608</span></span>
+<span><span class="co">## 5  1 Organic Fungicide A  LL.3 1e-02  7.3206757  7.764668 -0.4439924</span></span>
+<span><span class="co">## 6  1 Organic Fungicide A  LL.3 1e-01  0.6985264  1.484623 -0.7860970</span></span></code></pre>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/residual_data.html">plot_residuals</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span></code></pre>
+<p><img src="estimate_EC50_files/figure-html/unnamed-chunk-13-1.png" alt="Residual diagnostic plot for EC50 fits, with residuals plotted against fitted values." width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="visualize-results">Visualize Results<a class="anchor" aria-label="anchor" href="#visualize-results"></a>
 </h2>
 <p>Plot EC50 estimates and confidence intervals for all isolates.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_ec50</span> <span class="op">&lt;-</span> <span class="va">df_ec50</span></span>
 <span><span class="va">plot_ec50</span><span class="op">$</span><span class="va">ID</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">plot_ec50</span><span class="op">$</span><span class="va">ID</span><span class="op">)</span></span>
 <span></span>
@@ -266,9 +1262,9 @@ models from <code>fit</code>.</p>
 <span>    axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>,</span>
 <span>    legend.position <span class="op">=</span> <span class="st">"bottom"</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p><img src="estimate_EC50_files/figure-html/unnamed-chunk-9-1.png" alt="Point and interval plot of EC50 estimates for isolates, grouped by field system and fungicide." width="576"></p>
+<p><img src="estimate_EC50_files/figure-html/unnamed-chunk-14-1.png" alt="Point and interval plot of EC50 estimates for isolates, grouped by field system and fungicide." width="576"></p>
 <p>Density plots can help compare EC50 distributions between strata.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">df_ec50</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">Estimate</span>, <span class="va">field</span>, fill <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes_eval.html" class="external-link">after_stat</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://wilkelab.org/ggridges/reference/geom_ridgeline_gradient.html" class="external-link">geom_density_ridges_gradient</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_log10</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
@@ -279,7 +1275,7 @@ models from <code>fit</code>.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Picking joint bandwidth of 0.0328</span></span></code></pre>
 <pre><code><span><span class="co">## Picking joint bandwidth of 0.0285</span></span></code></pre>
-<p><img src="estimate_EC50_files/figure-html/unnamed-chunk-10-1.png" alt="Density ridge plot comparing EC50 distributions between field systems for each fungicide." width="700"></p>
+<p><img src="estimate_EC50_files/figure-html/unnamed-chunk-15-1.png" alt="Density ridge plot comparing EC50 distributions between field systems for each fungicide." width="700"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

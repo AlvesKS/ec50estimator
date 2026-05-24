@@ -13,6 +13,7 @@ plot_EC50_curves(
   color_col = NULL,
   facet_col = NULL,
   facet_row = NULL,
+  models = "all",
   n_points = 200,
   log_x = TRUE,
   point_size = 2,
@@ -44,6 +45,9 @@ before plotting.}
 
 \item{facet_col, facet_row}{Optional character scalars naming columns used for
 faceting. When omitted, the first two `strata_col` values are used.}
+
+\item{models}{One of `"all"`, `"best"`, or a character vector of model names
+to draw. `"best"` uses [best_model()] for multimodel fits.}
 
 \item{n_points}{Number of dose values used to draw each fitted curve.}
 

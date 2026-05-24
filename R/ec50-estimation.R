@@ -130,6 +130,12 @@ ec50_multimodel <- function(formula,
     lapply(results, function(single_result) attr(single_result, "ec50_models")),
     recursive = FALSE
   )
+  attr(result, "ec50_quality") <- bind_rows(
+    lapply(results, function(single_result) attr(single_result, "ec50_quality"))
+  )
+  attr(result, "ec50_failures") <- bind_rows(
+    lapply(results, function(single_result) attr(single_result, "ec50_failures"))
+  )
 
   new_ec50_result(
     result = result,
@@ -210,6 +216,8 @@ estimate_single_model <- function(formula,
   results <- vector("list", length(groups))
   failures <- character()
   fitted_models <- list()
+  quality_rows <- list()
+  failure_rows <- list()
 
   for (i in seq_along(groups)) {
     group_data <- data[groups[[i]], , drop = FALSE]
@@ -226,10 +234,25 @@ estimate_single_model <- function(formula,
 
     if (inherits(fit, "try-error")) {
       failures <- c(failures, format_failure(identifiers, fit))
+      failure_rows[[length(failure_rows) + 1]] <- fit_failure_row(
+        identifiers = identifiers,
+        isolate_col = isolate_col,
+        strata_col = strata_col,
+        model_name = model_label(fct),
+        error = fit
+      )
       next
     }
 
     results[[i]] <- add_identifiers(fit$estimates, identifiers, isolate_col, strata_col)
+    quality_rows[[length(quality_rows) + 1]] <- fit_quality_row(
+      data = group_data,
+      formula = formula,
+      identifiers = identifiers,
+      isolate_col = isolate_col,
+      strata_col = strata_col,
+      model_name = fit$model_name
+    )
     fitted_models[[length(fitted_models) + 1]] <- list(
       identifiers = identifiers,
       model = fit$model_name,
@@ -249,6 +272,8 @@ estimate_single_model <- function(formula,
 
   result <- bind_rows(results)
   attr(result, "ec50_models") <- fitted_models
+  attr(result, "ec50_quality") <- bind_rows(quality_rows)
+  attr(result, "ec50_failures") <- bind_rows(failure_rows)
   result
 }
 
@@ -292,6 +317,12 @@ new_ec50_result <- function(result,
     fitted_models <- list()
   }
   attr(result, "ec50_models") <- fitted_models
+  if (is.null(attr(result, "ec50_quality")) || ncol(attr(result, "ec50_quality")) == 0) {
+    attr(result, "ec50_quality") <- empty_fit_quality(strata_col)
+  }
+  if (is.null(attr(result, "ec50_failures")) || ncol(attr(result, "ec50_failures")) == 0) {
+    attr(result, "ec50_failures") <- empty_fit_failures(strata_col)
+  }
   attr(result, "ec50_formula") <- formula
   attr(result, "ec50_data") <- data
   attr(result, "ec50_isolate_col") <- isolate_col
@@ -300,6 +331,68 @@ new_ec50_result <- function(result,
   attr(result, "ec50_model_labels") <- unique(vapply(fitted_models, function(model) model$model, character(1)))
   class(result) <- unique(c(result_class, class(result)))
   result
+}
+
+fit_quality_row <- function(data,
+                            formula,
+                            identifiers,
+                            isolate_col,
+                            strata_col,
+                            model_name) {
+  vars <- formula_variables(formula)
+  dose_values <- data[[vars$dose]]
+  response_values <- data[[vars$response]]
+  cbind(
+    identifier_output(identifiers, isolate_col, strata_col),
+    data.frame(
+      model = model_name,
+      fit_status = "ok",
+      n_obs = nrow(data),
+      n_doses = length(unique(dose_values[is.finite(dose_values)])),
+      dose_min = suppressWarnings(min(dose_values, na.rm = TRUE)),
+      dose_max = suppressWarnings(max(dose_values, na.rm = TRUE)),
+      response_min = suppressWarnings(min(response_values, na.rm = TRUE)),
+      response_max = suppressWarnings(max(response_values, na.rm = TRUE)),
+      message = NA_character_,
+      stringsAsFactors = FALSE
+    )
+  )
+}
+
+fit_failure_row <- function(identifiers,
+                            isolate_col,
+                            strata_col,
+                            model_name,
+                            error) {
+  cbind(
+    identifier_output(identifiers, isolate_col, strata_col),
+    data.frame(
+      model = model_name,
+      message = conditionMessage(attr(error, "condition")),
+      stringsAsFactors = FALSE
+    )
+  )
+}
+
+identifier_output <- function(identifiers, isolate_col, strata_col) {
+  id <- data.frame(ID = as.character(identifiers[[isolate_col]]), stringsAsFactors = FALSE)
+  strata <- identifiers[strata_col]
+  if (length(strata) > 0) {
+    strata <- as.data.frame(strata, stringsAsFactors = FALSE)
+  }
+  cbind(id, strata)
+}
+
+empty_fit_quality <- function(strata_col) {
+  columns <- c(
+    "ID", strata_col, "model", "fit_status", "n_obs", "n_doses",
+    "dose_min", "dose_max", "response_min", "response_max", "message"
+  )
+  empty_data_frame(columns)
+}
+
+empty_fit_failures <- function(strata_col) {
+  empty_data_frame(c("ID", strata_col, "model", "message"))
 }
 
 add_identifiers <- function(estimates, identifiers, isolate_col, strata_col) {
@@ -370,4 +463,9 @@ bind_rows <- function(dfs) {
   })
 
   do.call(rbind, dfs)
+}
+
+empty_data_frame <- function(columns) {
+  result <- stats::setNames(rep(list(character()), length(columns)), columns)
+  as.data.frame(result, stringsAsFactors = FALSE)
 }

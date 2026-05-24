@@ -13,6 +13,18 @@ reference:
     contents:
       - estimate_EC50
       - ec50_multimodel
+  - title: Select and diagnose models
+    contents:
+      - model_selection
+      - best_model
+      - fit_quality
+      - fit_failures
+      - residual_data
+      - plot_residuals
+  - title: Predict and report
+    contents:
+      - predict_ec50
+      - report_ec50
   - title: Work with fitted objects
     contents:
       - curve_data
@@ -22,6 +34,9 @@ reference:
   - title: Plot fitted curves
     contents:
       - plot_EC50_curves
+  - title: Check data
+    contents:
+      - check_ec50_data
   - title: Data
     contents:
       - multi_isolate

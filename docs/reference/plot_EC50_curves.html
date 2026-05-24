@@ -64,6 +64,7 @@ formula/data interface.</p>
 <span>  color_col <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  facet_col <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  facet_row <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  models <span class="op">=</span> <span class="st">"all"</span>,</span>
 <span>  n_points <span class="op">=</span> <span class="fl">200</span>,</span>
 <span>  log_x <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  point_size <span class="op">=</span> <span class="fl">2</span>,</span>
@@ -112,6 +113,11 @@ before plotting.</p></dd>
 <dt id="arg-facet-col-facet-row">facet_col, facet_row<a class="anchor" aria-label="anchor" href="#arg-facet-col-facet-row"></a></dt>
 <dd><p>Optional character scalars naming columns used for
 faceting. When omitted, the first two `strata_col` values are used.</p></dd>
+
+
+<dt id="arg-models">models<a class="anchor" aria-label="anchor" href="#arg-models"></a></dt>
+<dd><p>One of `"all"`, `"best"`, or a character vector of model names
+to draw. `"best"` uses [best_model()] for multimodel fits.</p></dd>
 
 
 <dt id="arg-n-points">n_points<a class="anchor" aria-label="anchor" href="#arg-n-points"></a></dt>

@@ -7,6 +7,8 @@
   data, grouping columns, or model functions.
 * Added `ec50_estimates()`, `ec50_metadata()`, `fitted_models()`, and
   `curve_data()` helpers for working directly with fitted EC50 objects.
+* Added workflow helpers for model selection, fit quality, failed fits,
+  prediction, reporting, data checks, and residual diagnostics.
 * Modernized EC50 estimation internals with shared validation, clearer errors,
   and warnings for failed isolate-level fits.
 * Reduced imported dependencies to `drc`; `ggplot2` is imported for the exported

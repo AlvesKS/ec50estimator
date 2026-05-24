@@ -112,11 +112,34 @@ vignette runs quickly while still showing the grouped workflow.</p>
 <span><span class="co">## 4       1 Organic Fungicide A 1e-03 15.8123455</span></span>
 <span><span class="co">## 5       1 Organic Fungicide A 1e-02  7.3206757</span></span>
 <span><span class="co">## 6       1 Organic Fungicide A 1e-01  0.6985264</span></span></code></pre>
+<p>Run a quick data check before fitting. This helps identify sparse
+groups, missing values, nonpositive doses for log-scale workflows, and
+groups with too little response variation.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/check_ec50_data.html">check_ec50_data</a></span><span class="op">(</span></span>
+<span>  <span class="va">example_data</span>,</span>
+<span>  response <span class="op">=</span> <span class="st">"growth"</span>,</span>
+<span>  dose <span class="op">=</span> <span class="st">"dose"</span>,</span>
+<span>  isolate <span class="op">=</span> <span class="st">"isolate"</span>,</span>
+<span>  strata <span class="op">=</span> <span class="st">"field"</span></span>
+<span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##   ID        field n_obs n_doses missing_response missing_dose nonpositive_dose</span></span>
+<span><span class="co">## 1  1      Organic    35       7                0            0                5</span></span>
+<span><span class="co">## 2  2 Conventional    35       7                0            0                5</span></span>
+<span><span class="co">## 3  3      Organic    35       7                0            0                5</span></span>
+<span><span class="co">## 4  4 Conventional    35       7                0            0                5</span></span>
+<span><span class="co">## 5  5      Organic    35       7                0            0                5</span></span>
+<span><span class="co">##   duplicated_rows no_response_variation too_few_observations too_few_doses</span></span>
+<span><span class="co">## 1               0                 FALSE                FALSE         FALSE</span></span>
+<span><span class="co">## 2               0                 FALSE                FALSE         FALSE</span></span>
+<span><span class="co">## 3               0                 FALSE                FALSE         FALSE</span></span>
+<span><span class="co">## 4               0                 FALSE                FALSE         FALSE</span></span>
+<span><span class="co">## 5               0                 FALSE                FALSE         FALSE</span></span></code></pre>
 <p>Inspect the raw dose-response observations before comparing models.
 Because each isolate can have repeated observations at the same dose,
 this plot uses jittered points instead of connecting observations with
 lines.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">example_data</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">dose</span>, <span class="va">growth</span>, color <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">isolate</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_jitter.html" class="external-link">geom_jitter</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.08</span>, height <span class="op">=</span> <span class="fl">0</span>, alpha <span class="op">=</span> <span class="fl">0.85</span>, size <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">field</span><span class="op">)</span> <span class="op">+</span></span>
@@ -125,7 +148,7 @@ lines.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_light</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Warning in scale_x_log10(): <span style="color: #00BB00;">log-10</span> transformation introduced</span></span>
 <span><span class="co">## infinite values.</span></span></code></pre>
-<p><img src="ec50_multimodel_files/figure-html/unnamed-chunk-3-1.png" alt="Jittered dose-response scatter plot for five isolates exposed to Fungicide A, faceted by field system." width="700"></p>
+<p><img src="ec50_multimodel_files/figure-html/unnamed-chunk-4-1.png" alt="Jittered dose-response scatter plot for five isolates exposed to Fungicide A, faceted by field system." width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="compare-models">Compare Models<a class="anchor" aria-label="anchor" href="#compare-models"></a>
@@ -133,7 +156,7 @@ lines.</p>
 <p>Pass a list of candidate model functions to <code>fct</code>. The
 function fits each model for each isolate and stratum, then appends
 model-selection statistics returned by <code><a href="https://rdrr.io/pkg/drc/man/mselect.html" class="external-link">drc::mselect()</a></code>.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/estimate_EC50.html">ec50_multimodel</a></span><span class="op">(</span></span>
 <span>  <span class="va">growth</span> <span class="op">~</span> <span class="va">dose</span>,</span>
 <span>  data <span class="op">=</span> <span class="va">example_data</span>,</span>
@@ -162,9 +185,9 @@ model-selection statistics returned by <code><a href="https://rdrr.io/pkg/drc/ma
 <p>The <code>model</code> column identifies the candidate model. The
 <code>IC</code> column is the information criterion reported by
 <code><a href="https://rdrr.io/pkg/drc/man/mselect.html" class="external-link">drc::mselect()</a></code> for the fitted model.</p>
-<p>The fitted object also stores metadata and the underlying fitted
-<code>drc</code> models.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<p>The fitted object also stores metadata, fit-quality information,
+failed fits, and the underlying fitted <code>drc</code> models.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/ec50_extractors.html">ec50_metadata</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## $formula</span></span>
 <span><span class="co">## growth ~ dose</span></span>
@@ -183,11 +206,31 @@ model-selection statistics returned by <code><a href="https://rdrr.io/pkg/drc/ma
 <span><span class="co">## </span></span>
 <span><span class="co">## $n_models</span></span>
 <span><span class="co">## [1] 15</span></span></code></pre>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/fit_quality.html">fit_quality</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##     ID        field model fit_status n_obs n_doses dose_min dose_max</span></span>
+<span><span class="co">## 1    1      Organic  LL.3         ok    35       7        0        1</span></span>
+<span><span class="co">## 36   2 Conventional  LL.3         ok    35       7        0        1</span></span>
+<span><span class="co">## 71   3      Organic  LL.3         ok    35       7        0        1</span></span>
+<span><span class="co">## 106  4 Conventional  LL.3         ok    35       7        0        1</span></span>
+<span><span class="co">## 141  5      Organic  LL.3         ok    35       7        0        1</span></span>
+<span><span class="co">## 11   1      Organic  LL.4         ok    35       7        0        1</span></span>
+<span><span class="co">##     response_min response_max message</span></span>
+<span><span class="co">## 1     0.07631550     20.66667    &lt;NA&gt;</span></span>
+<span><span class="co">## 36    1.24394259     20.75420    &lt;NA&gt;</span></span>
+<span><span class="co">## 71    0.06118528     20.78938    &lt;NA&gt;</span></span>
+<span><span class="co">## 106   1.64277882     20.99232    &lt;NA&gt;</span></span>
+<span><span class="co">## 141   0.10539854     20.54952    &lt;NA&gt;</span></span>
+<span><span class="co">## 11    0.07631550     20.66667    &lt;NA&gt;</span></span></code></pre>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/fit_quality.html">fit_failures</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] ID      field   model   message</span></span>
+<span><span class="co">## &lt;0 rows&gt; (or 0-length row.names)</span></span></code></pre>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">models</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ec50_extractors.html">fitted_models</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">models</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] 15</span></span></code></pre>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">models</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] "field=Organic_isolate=1_model=LL.3"     </span></span>
 <span><span class="co">## [2] "field=Conventional_isolate=2_model=LL.3"</span></span>
@@ -200,7 +243,7 @@ model-selection statistics returned by <code><a href="https://rdrr.io/pkg/drc/ma
 <p>You can rank candidate models within each isolate and stratum using
 base R. Lower <code>IC</code> values indicate stronger relative support
 among the compared models.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ranked_models</span> <span class="op">&lt;-</span> <span class="va">df_models</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">df_models</span><span class="op">$</span><span class="va">field</span>, <span class="va">df_models</span><span class="op">$</span><span class="va">ID</span>, <span class="va">df_models</span><span class="op">$</span><span class="va">IC</span><span class="op">)</span>, <span class="op">]</span></span>
 <span><span class="va">best_models</span> <span class="op">&lt;-</span> <span class="va">ranked_models</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/duplicated.html" class="external-link">duplicated</a></span><span class="op">(</span><span class="va">ranked_models</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"field"</span>, <span class="st">"ID"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>, <span class="op">]</span></span>
 <span></span>
@@ -211,13 +254,35 @@ among the compared models.</p>
 <span><span class="co">## 1    1      Organic  LL.3 0.006072082 0.0005740341 98.30158</span></span>
 <span><span class="co">## 712  3      Organic  W2.3 0.003233688 0.0001397399 76.96774</span></span>
 <span><span class="co">## 141  5      Organic  LL.3 0.006122508 0.0004575060 90.82115</span></span></code></pre>
+<p>The same ranking is available through <code><a href="../reference/model_selection.html">model_selection()</a></code>,
+which adds delta information-criterion values, model weights, and ranks.
+Use <code><a href="../reference/model_selection.html">best_model()</a></code> to keep only the best-supported model per
+isolate and stratum.</p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">selection</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/model_selection.html">model_selection</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">selection</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ID"</span>, <span class="st">"field"</span>, <span class="st">"model"</span>, <span class="st">"IC"</span>, <span class="st">"delta"</span>, <span class="st">"weight"</span>, <span class="st">"rank"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##   ID        field model        IC     delta     weight rank</span></span>
+<span><span class="co">## 1  2 Conventional  LL.3  95.06365 0.0000000 0.70750544    1</span></span>
+<span><span class="co">## 2  2 Conventional  LL.4  96.95829 1.8946342 0.27435647    2</span></span>
+<span><span class="co">## 3  2 Conventional  W2.3 102.39112 7.3274622 0.01813809    3</span></span>
+<span><span class="co">## 4  4 Conventional  LL.3  84.84309 0.0000000 0.54314934    1</span></span>
+<span><span class="co">## 5  4 Conventional  LL.4  85.70322 0.8601343 0.35329986    2</span></span>
+<span><span class="co">## 6  4 Conventional  W2.3  88.15773 3.3146439 0.10355080    3</span></span></code></pre>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/model_selection.html">best_model</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ID"</span>, <span class="st">"field"</span>, <span class="st">"model"</span>, <span class="st">"Estimate"</span>, <span class="st">"IC"</span>, <span class="st">"delta"</span>, <span class="st">"weight"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<pre><code><span><span class="co">##   ID        field model    Estimate       IC delta    weight</span></span>
+<span><span class="co">## 1  2 Conventional  LL.3 0.101455765 95.06365     0 0.7075054</span></span>
+<span><span class="co">## 2  4 Conventional  LL.3 0.079971237 84.84309     0 0.5431493</span></span>
+<span><span class="co">## 3  1      Organic  LL.3 0.006072082 98.30158     0 0.6297820</span></span>
+<span><span class="co">## 4  3      Organic  W2.3 0.003233688 76.96774     0 0.6885128</span></span>
+<span><span class="co">## 5  5      Organic  LL.3 0.006122508 90.82115     0 0.6650939</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="visualize-model-comparison">Visualize Model Comparison<a class="anchor" aria-label="anchor" href="#visualize-model-comparison"></a>
 </h2>
 <p>Plot the information criterion across isolates to see whether one
 model is consistently preferred.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_models</span> <span class="op">&lt;-</span> <span class="va">df_models</span></span>
 <span><span class="va">plot_models</span><span class="op">$</span><span class="va">ID</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">plot_models</span><span class="op">$</span><span class="va">ID</span><span class="op">)</span></span>
 <span></span>
@@ -227,7 +292,7 @@ model is consistently preferred.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">plot_models</span><span class="op">$</span><span class="va">ID</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Isolate"</span>, y <span class="op">=</span> <span class="st">"Information criterion"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_light</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ec50_multimodel_files/figure-html/unnamed-chunk-7-1.png" alt="Point plot of information criterion values by isolate for each candidate model and field system." width="700"></p>
+<p><img src="ec50_multimodel_files/figure-html/unnamed-chunk-9-1.png" alt="Point plot of information criterion values by isolate for each candidate model and field system." width="700"></p>
 <p>After choosing an appropriate model, use <code><a href="../reference/estimate_EC50.html">estimate_EC50()</a></code>
 for the final estimation workflow if a single model should be applied
 across the full dataset.</p>
@@ -239,7 +304,7 @@ across the full dataset.</p>
 fitted dose-response curves in the same graph. The function uses the
 <code><a href="../reference/estimate_EC50.html">ec50_multimodel()</a></code> output directly, so you do not need to
 repeat the formula, data, grouping columns, or model functions.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">single_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/estimate_EC50.html">estimate_EC50</a></span><span class="op">(</span></span>
 <span>  <span class="va">growth</span> <span class="op">~</span> <span class="va">dose</span>,</span>
 <span>  data <span class="op">=</span> <span class="va">example_data</span>,</span>
@@ -249,19 +314,24 @@ repeat the formula, data, grouping columns, or model functions.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/plot_EC50_curves.html">plot_EC50_curves</a></span><span class="op">(</span><span class="va">single_fit</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ec50_multimodel_files/figure-html/unnamed-chunk-8-1.png" alt="Faceted dose-response plot with raw points and one fitted curve per isolate and field system." width="700"></p>
+<p><img src="ec50_multimodel_files/figure-html/unnamed-chunk-10-1.png" alt="Faceted dose-response plot with raw points and one fitted curve per isolate and field system." width="700"></p>
 <p>When several candidate models are supplied, all fitted curves are
 drawn and the model is mapped to line type.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_EC50_curves.html">plot_EC50_curves</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ec50_multimodel_files/figure-html/unnamed-chunk-9-1.png" alt="Faceted dose-response plot with raw points and multiple fitted model curves per isolate and field system." width="700"></p>
+<p><img src="ec50_multimodel_files/figure-html/unnamed-chunk-11-1.png" alt="Faceted dose-response plot with raw points and multiple fitted model curves per isolate and field system." width="700"></p>
+<p>To show only the best-supported curve per isolate and stratum, use
+<code>models = "best"</code>.</p>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_EC50_curves.html">plot_EC50_curves</a></span><span class="op">(</span><span class="va">fit</span>, models <span class="op">=</span> <span class="st">"best"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="ec50_multimodel_files/figure-html/unnamed-chunk-12-1.png" alt="Faceted dose-response plot showing only the best-supported fitted model per isolate and field system." width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="custom-curve-data">Custom Curve Data<a class="anchor" aria-label="anchor" href="#custom-curve-data"></a>
 </h2>
 <p>Use <code><a href="../reference/ec50_extractors.html">curve_data()</a></code> when you want to build a custom
 <code>ggplot2</code> figure from the fitted curves.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">curves</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ec50_extractors.html">curve_data</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">curves</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##       field isolate model         dose   growth   .curve_group</span></span>
@@ -271,14 +341,113 @@ drawn and the model is mapped to line type.</p>
 <span><span class="co">## 1.3 Organic       1  LL.3 1.189534e-05 19.85289 Organic.1.LL.3</span></span>
 <span><span class="co">## 1.4 Organic       1  LL.3 1.260383e-05 19.84901 Organic.1.LL.3</span></span>
 <span><span class="co">## 1.5 Organic       1  LL.3 1.335452e-05 19.84493 Organic.1.LL.3</span></span></code></pre>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">curves</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">dose</span>, <span class="va">growth</span>, color <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">isolate</span><span class="op">)</span>, linetype <span class="op">=</span> <span class="va">model</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">field</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_log10</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Dose"</span>, y <span class="op">=</span> <span class="st">"Growth"</span>, color <span class="op">=</span> <span class="st">"Isolate"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_light</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ec50_multimodel_files/figure-html/unnamed-chunk-11-1.png" alt="Custom ggplot2 dose-response curve figure using coordinates extracted from an ec50_multimodel fit." width="700"></p>
+<p><img src="ec50_multimodel_files/figure-html/unnamed-chunk-14-1.png" alt="Custom ggplot2 dose-response curve figure using coordinates extracted from an ec50_multimodel fit." width="700"></p>
+</div>
+<div class="section level2">
+<h2 id="predict-report-and-diagnose">Predict, Report, and Diagnose<a class="anchor" aria-label="anchor" href="#predict-report-and-diagnose"></a>
+</h2>
+<p>Use <code><a href="../reference/predict_ec50.html">predict_ec50()</a></code> to predict responses at specific
+doses without refitting models. Use <code><a href="../reference/report_ec50.html">report_ec50()</a></code> to create
+a plain data frame for final tables.</p>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/predict_ec50.html">predict_ec50</a></span><span class="op">(</span><span class="va">fit</span>, dose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.001</span>, <span class="fl">0.01</span>, <span class="fl">0.1</span><span class="op">)</span>, models <span class="op">=</span> <span class="st">"best"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span></code></pre>
+<pre><code><span><span class="co">##    ID        field model  dose  predicted</span></span>
+<span><span class="co">## 1   1      Organic  LL.3 0.001 16.6397063</span></span>
+<span><span class="co">## 2   1      Organic  LL.3 0.010  7.7646682</span></span>
+<span><span class="co">## 3   1      Organic  LL.3 0.100  1.4846233</span></span>
+<span><span class="co">## 4   2 Conventional  LL.3 0.001 19.8239563</span></span>
+<span><span class="co">## 5   2 Conventional  LL.3 0.010 18.2773750</span></span>
+<span><span class="co">## 6   2 Conventional  LL.3 0.100 10.0752898</span></span>
+<span><span class="co">## 7   4 Conventional  LL.3 0.001 19.5825722</span></span>
+<span><span class="co">## 8   4 Conventional  LL.3 0.010 17.4554970</span></span>
+<span><span class="co">## 9   4 Conventional  LL.3 0.100  8.8966200</span></span>
+<span><span class="co">## 10  5      Organic  LL.3 0.001 17.4586665</span></span>
+<span><span class="co">## 11  5      Organic  LL.3 0.010  7.3837621</span></span>
+<span><span class="co">## 12  5      Organic  LL.3 0.100  0.9303844</span></span>
+<span><span class="co">## 13  3      Organic  W2.3 0.001 16.5443281</span></span>
+<span><span class="co">## 14  3      Organic  W2.3 0.010  4.8836421</span></span>
+<span><span class="co">## 15  3      Organic  W2.3 0.100  0.8690447</span></span></code></pre>
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">report</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/report_ec50.html">report_ec50</a></span><span class="op">(</span><span class="va">fit</span>, models <span class="op">=</span> <span class="st">"best"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">report</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##     ID        field    Estimate   Std..Error       Lower       Upper    logLik</span></span>
+<span><span class="co">## 1    1      Organic 0.006072082 0.0005740341 0.004902813 0.007241351 -45.15079</span></span>
+<span><span class="co">## 36   2 Conventional 0.101455765 0.0076364691 0.085900787 0.117010744 -43.53183</span></span>
+<span><span class="co">## 106  4 Conventional 0.079971237 0.0055655891 0.068634503 0.091307971 -38.42154</span></span>
+<span><span class="co">## 141  5      Organic 0.006122508 0.0004575060 0.005190599 0.007054418 -41.41058</span></span>
+<span><span class="co">## 712  3      Organic 0.003233688 0.0001397399 0.002949048 0.003518329 -34.48387</span></span>
+<span><span class="co">##           IC Lack.of.fit   Res.var model</span></span>
+<span><span class="co">## 1   98.30158   0.7271292 0.8451681  LL.3</span></span>
+<span><span class="co">## 36  95.06365   0.9866424 0.7704874  LL.3</span></span>
+<span><span class="co">## 106 84.84309   0.8328859 0.5753664  LL.3</span></span>
+<span><span class="co">## 141 90.82115   0.9744433 0.6825317  LL.3</span></span>
+<span><span class="co">## 712 76.96774   0.8355451 0.4594349  W2.3</span></span></code></pre>
+<p>Residual diagnostics help identify isolates or candidate models where
+the fitted curve may not describe the data well.</p>
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/residual_data.html">residual_data</a></span><span class="op">(</span><span class="va">fit</span>, models <span class="op">=</span> <span class="st">"best"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span></code></pre>
+<pre><code><span><span class="co">##   ID   field model  dose   observed    fitted   residual</span></span>
+<span><span class="co">## 1  1 Organic  LL.3 0e+00 20.2082399 19.925747  0.2824926</span></span>
+<span><span class="co">## 2  1 Organic  LL.3 1e-05 20.1168279 19.863383  0.2534450</span></span>
+<span><span class="co">## 3  1 Organic  LL.3 1e-04 19.2479678 19.441644 -0.1936758</span></span>
+<span><span class="co">## 4  1 Organic  LL.3 1e-03 15.8123455 16.639706 -0.8273608</span></span>
+<span><span class="co">## 5  1 Organic  LL.3 1e-02  7.3206757  7.764668 -0.4439924</span></span>
+<span><span class="co">## 6  1 Organic  LL.3 1e-01  0.6985264  1.484623 -0.7860970</span></span></code></pre>
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/residual_data.html">plot_residuals</a></span><span class="op">(</span><span class="va">fit</span>, models <span class="op">=</span> <span class="st">"best"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span>
+<span><span class="co">## Warning in data.frame(identifier_output(record$identifiers, attr(x,</span></span>
+<span><span class="co">## "ec50_isolate_col"), : row names were found from a short variable and have been</span></span>
+<span><span class="co">## discarded</span></span></code></pre>
+<p><img src="ec50_multimodel_files/figure-html/unnamed-chunk-17-1.png" alt="Residual diagnostic plot for best-supported EC50 models, with residuals plotted against fitted values." width="700"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
