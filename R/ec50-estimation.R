@@ -36,10 +36,14 @@
 #'
 #' @examples
 #' data(multi_isolate)
+#' sample_data <- subset(
+#'   multi_isolate,
+#'   isolate == 1 & fungicida == "Fungicide A"
+#' )
 #'
 #' estimate_EC50(
 #'   growth ~ dose,
-#'   data = multi_isolate,
+#'   data = sample_data,
 #'   isolate_col = "isolate",
 #'   strata_col = c("field", "fungicida"),
 #'   fct = drc::LL.3()
@@ -47,7 +51,7 @@
 #'
 #' ec50_multimodel(
 #'   growth ~ dose,
-#'   data = multi_isolate,
+#'   data = sample_data,
 #'   isolate_col = "isolate",
 #'   strata_col = c("field", "fungicida"),
 #'   fct = list(drc::LL.3(), drc::LL.4())
